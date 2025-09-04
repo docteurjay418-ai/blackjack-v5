@@ -1,4 +1,4 @@
-:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); }
+:root{ --felt:#0c7a90; --felt-d:#085d6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); }
 *{box-sizing:border-box} html,body{height:100%}
 body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; overflow:hidden; user-select:none }
 .topbar{ position:fixed; inset:0 0 auto 0; height:56px; display:flex; gap:28px; align-items:center; padding:0 18px; background:linear-gradient(#0b1a22,#0a1820); border-bottom:1px solid #0d2a34; z-index:1000 }
@@ -24,7 +24,6 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .seat .circle{ width:160px; height:160px; border-radius:999px;
   background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), rgba(255,255,255,.04) 62%, rgba(0,0,0,.18) 64%, rgba(255,255,255,.06) 66%);
   box-shadow:inset 0 0 40px rgba(0,0,0,.3); display:grid; place-items:center; position:relative; cursor:pointer }
-.seat .label{ position:absolute; top:-26px; font-weight:800; opacity:.9 }
 .seat .stack{ position:absolute; inset:auto 0 18px 0; display:flex; justify-content:center; gap:4px; pointer-events:none }
 .stack .chip-mini{ width:26px; height:26px; border-radius:50%; box-shadow:0 6px 12px rgba(0,0,0,.45), inset 0 0 0 4px rgba(255,255,255,.12); position:relative }
 .stack .chip-mini::before{ content:""; position:absolute; inset:6px; border-radius:50%; background:conic-gradient(from 18deg, #eee 0 18deg, transparent 18deg 36deg); opacity:.8;
@@ -97,8 +96,8 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .chip.active{ outline:4px solid rgba(255,255,255,.45); transform:translateY(-2px) }
 .chip[data-v="0.5"]{ --chip-base:#e04b4b; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.15) 0 8deg, transparent 8deg 16deg) }
 .chip[data-v="1"]{ --chip-base:#555555; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 6deg, transparent 6deg 12deg) }
-.chip[data-v="5"]{ --chip-base:#d33a2c; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 10deg, transparent 10deg 20deg) }
-.chip[data-v="25"]{ --chip-base:#2e9a2e; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.2) 0 5deg, transparent 5deg 10deg) }
+.chip[data-v="5"]{ --chip-base:#2e9a2e; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.2) 0 5deg, transparent 5deg 10deg) }
+.chip[data-v="25"]{ --chip-base:#d33a2c; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 10deg, transparent 10deg 20deg) }
 .chip[data-v="100"]{ --chip-base:#111111; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.28) 0 4deg, transparent 4deg 8deg) }
 .chip[data-v="500"]{ --chip-base:#6b37c8; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 3deg, transparent 3deg 6deg) }
 .chip[data-v="1000"]{ --chip-base:#f39c12; --chip-text:#1a1a1a; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.28) 0 2deg, transparent 2deg 4deg) }
