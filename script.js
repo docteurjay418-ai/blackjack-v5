@@ -48,16 +48,16 @@ function renderSeatStack(idx){
   const v=state.bets[idx];
   stackEl.innerHTML='';
   if(v<=0){ amtEl.textContent='BET'; return; }
-  const chips=amountToChipStack(v).slice(0,6);
-  const offsets=[{x:0,y:0},{x:-10,y:-10},{x:10,y:-10},{x:-10,y:10},{x:10,y:10},{x:0,y:-16}];
-  chips.forEach((val,i)=>{
+  // Build canonical stack (auto-consolidated by denomination)
+  const chips=amountToChipStack(v);
+  // Perfect centered stacking: each chip exactly covers the previous
+  chips.forEach((val)=>{
     const c=document.createElement('div');
     c.className='chip chip-seat';
     c.dataset.v=String(val);
     const label = val>=1000 ? `$${val/1000}k` : `$${val}`;
     c.innerHTML = `<small>${label}</small>`;
-    c.style.transform = `translate(calc(-50% + ${offsets[i%offsets.length].x}px), calc(-50% + ${offsets[i%offsets.length].y}px))`;
-    // color base is handled via CSS by [data-v]
+    c.style.transform = 'translate(-50%, -50%)';
     stackEl.appendChild(c);
   });
   amtEl.textContent=money(v);
@@ -119,9 +119,10 @@ document.querySelector('#customChipBtn').addEventListener('click',()=>{ const va
   chip.addEventListener('click',()=>selectChip(val)); selectChip(val); });
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>selectChip(c.dataset.v)));
 document.querySelectorAll('.seat').forEach(seat=>{ const idx=+seat.dataset.idx;
-  seat.querySelector('.circle').addEventListener('click',()=>{ if(state.inRound) return; state.bets[idx]=+(state.bets[idx]+selectedChip).toFixed(2); state.lastBets[idx]=state.bets[idx]; renderSeatStack(idx); renderTop(); });
-  seat.querySelector('.circle').addEventListener('contextmenu',e=>{ e.preventDefault(); if(state.inRound) return; state.bets[idx]=Math.max(0, +(state.bets[idx]-selectedChip).toFixed(2)); renderSeatStack(idx); renderTop(); });
-  seat.querySelector('.circle').addEventListener('dblclick',()=>{ if(state.inRound) return; state.bets[idx]=0; renderSeatStack(idx); renderTop(); });
+  const circle = seat.querySelector('.circle');
+  circle.addEventListener('click',()=>{ if(state.inRound) return; state.bets[idx]=+(state.bets[idx]+selectedChip).toFixed(2); state.lastBets[idx]=state.bets[idx]; renderSeatStack(idx); renderTop(); });
+  circle.addEventListener('contextmenu',e=>{ e.preventDefault(); if(state.inRound) return; state.bets[idx]=Math.max(0, +(state.bets[idx]-selectedChip).toFixed(2)); renderSeatStack(idx); renderTop(); });
+  // Removed dblclick-to-clear to prevent accidental reset when clicking fast
 });
 
 function anyBet(){ return state.bets.some(v=>v>0); }
