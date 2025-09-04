@@ -168,6 +168,21 @@ function renderSeatStack(idx){
   });
   amtEl.textContent=money(v);
 }
+
+
+// Fan layout helpers (centered)
+const FAN_SPREAD = 280;
+const FAN_MAX_ANGLE = 22;
+function createFanHost(parent, idx, total){
+  const host=document.createElement('div');
+  host.style.position='absolute'; host.style.left='50%'; host.style.bottom='0';
+  host.style.transformOrigin='bottom center';
+  const rel = (total<=1)?0:(idx/(total-1)-0.5);
+  const x = rel * FAN_SPREAD; const y = Math.abs(rel) * -14; const angle = rel * FAN_MAX_ANGLE;
+  host.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+  host.style.zIndex = String(100+idx); parent.appendChild(host); return host;
+}
+function ensureDealWrap(area){ let wrap=area.querySelector('.deal-wrap'); if(!wrap){ wrap=document.createElement('div'); wrap.className='deal-wrap'; wrap.style.display='inline-block'; wrap.style.position='relative'; wrap.style.marginRight='12px'; wrap.style.height='calc(104px + 1mm)'; area.appendChild(wrap); } wrap.style.width=(FAN_SPREAD + 74)+'px'; return wrap; }
 function refreshBetsUI(){ for(let i=0;i<3;i++) renderSeatStack(i); renderTop(); }
 function clearBets(){ state.bets=[0,0,0]; refreshBetsUI(); playChipSound(); }
 function rebet(){ state.bets=[...state.lastBets]; refreshBetsUI(); playChipSound(); }
