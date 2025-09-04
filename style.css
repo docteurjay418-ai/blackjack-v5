@@ -17,7 +17,7 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
   mix-blend-mode:overlay; pointer-events:none }
 /* Felt texture overlay (ambientCG Fabric017). Place Color map at assets/fabric/Fabric017_Color.jpg */
 .table::after{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.28; mix-blend-mode:multiply;
-  background-image: url('assets/fabric/Fabric017_Color.jpg');
+  background-image: url('assets/fabric/Fabric017.png');
   background-size: 520px 520px; background-repeat: repeat; background-position:center; }
 .rim{ position:absolute; inset:12px; border-radius:18px; box-shadow:inset 0 0 0 8px rgba(0,0,0,.12), inset 0 0 0 2px rgba(255,255,255,.06) }
 .svg-arches{ position:absolute; inset:auto 0 58% 0; pointer-events:none; opacity:.92 }
