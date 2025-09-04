@@ -109,9 +109,9 @@ function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.dis
 // ============================== Deal sound =============================
 let dealSound;
 try{
-  dealSound = new Audio('assets/sounds/deal.mp3');
+  // Use provided OGG asset
+  dealSound = new Audio('assets/sounds/card-slide-6.ogg');
   dealSound.volume = 0.35;
-  dealSound.onerror = ()=>{ try{ dealSound.src='assets/sounds/deal.wav'; }catch(e){} };
 }catch(e){}
 function playDealSound(){ try{ if(dealSound){ dealSound.currentTime=0; dealSound.play().catch(()=>{}); } }catch(e){} }
 
