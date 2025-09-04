@@ -8,33 +8,29 @@ function buildShoe(decks=6){ const cards=[]; for(let d=0;d<decks;d++){ for(const
 function drawCard(){ if(shoe.length<=pen) buildShoe(); return shoe.pop(); }
 function handValue(cards){ let total=0, aces=0; for(const c of cards){ if(c.rank==='A'){aces++; total+=11;} else if(['10','J','Q','K'].includes(c.rank)){ total+=10; } else total+=parseInt(c.rank,10); }
   while(total>21 && aces>0){ total-=10; aces--; } const soft=(aces>0 && total<=21); const isBJ=(cards.length===2 && total===21); return {total,soft,isBJ}; }
-function createCardEl(card, hidden=false){ const wrap=document.createElement('div'); wrap.className='card-wrap'; const el=document.createElement('div'); el.className='card flip'+(hidden?' flipped':'');
+function rankMagnitude(r){ switch(r){ case 'A': return 1; case 'J': return 11; case 'Q': return 12; case 'K': return 13; default: return parseInt(r,10)||10; } }
+function createCardEl(card, hidden=false){
+  const wrap=document.createElement('div'); wrap.className='card-wrap';
+  const el=document.createElement('div'); el.className='card flip'+(hidden?' flipped':'');
   if(COLOR(card.suit)==='red') el.classList.add('red');
-  const front=document.createElement('div'); front.className='front'; front.style.position='absolute'; front.style.inset='0'; front.style.borderRadius='10px'; front.style.backfaceVisibility='hidden';
-  const tl=document.createElement('div'); tl.className='corner'; tl.innerHTML=`<div class="rank">${card.rank}</div><div class="suit">${card.suit}</div>`;
-  const br=tl.cloneNode(true); br.classList.add('br'); front.appendChild(tl); front.appendChild(br);
-  placePips(front,card.rank,card.suit);
-  const back=document.createElement('div'); back.className='backface'; el.appendChild(front); el.appendChild(back); wrap.appendChild(el); return wrap; }
-// Fidelity pip layout approximating standard casino decks
-function placePips(container,rank,suit){
-  const add = (x,y)=>{ const pip=document.createElement('div'); pip.className='pip'; pip.textContent=suit; pip.style.left=x+'%'; pip.style.top=y+'%'; pip.style.position='absolute'; pip.style.transform='translate(-50%,-50%)'; container.appendChild(pip); };
-  const pair = y=>{ add(30,y); add(70,y); };
-  // Row Y positions tuned to avoid corners and borders
-  const Y={ t1:20, t2:32, mid:50, b2:68, b1:80 };
-  switch(rank){
-    case 'A': add(50,Y.mid); break;
-    case '2': add(50,Y.t2); add(50,Y.b2); break;
-    case '3': add(50,Y.t2); add(50,Y.mid); add(50,Y.b2); break;
-    case '4': pair(Y.t2); pair(Y.b2); break;
-    case '5': pair(Y.t2); add(50,Y.mid); pair(Y.b2); break;
-    case '6': pair(24); pair(Y.mid); pair(76); break;
-    case '7': pair(24); pair(Y.mid); pair(76); add(50,Y.t1); break;
-    case '8': pair(24); pair(Y.mid); pair(76); add(50,Y.t1); add(50,Y.b1); break;
-    case '9': pair(24); pair(Y.mid); pair(76); add(50,Y.t1); add(50,Y.b1); add(50,Y.mid); break;
-    case '10': pair(Y.t1); pair(Y.t2); pair(Y.mid); pair(Y.b2); pair(Y.b1); break;
-    case 'J': case 'Q': case 'K': { const face=document.createElement('div'); face.className='face'; face.textContent=suit; container.appendChild(face); break; }
-  }
+  const front=document.createElement('div'); front.className='front'; front.style.position='absolute'; front.style.inset='0'; front.style.borderRadius='12px'; front.style.backfaceVisibility='hidden';
+
+  const mag=rankMagnitude(card.rank);
+  const corner=document.createElement('div'); corner.className='corner-block';
+  const cr=document.createElement('div'); cr.className='corner-rank'; cr.textContent=card.rank; corner.appendChild(cr);
+  const cs=document.createElement('div'); cs.className='corner-suit'; cs.textContent=card.suit; cs.style.fontSize=(10+Math.round(6*mag/13))+'px'; corner.appendChild(cs);
+  front.appendChild(corner);
+
+  const center=document.createElement('div'); center.className='center-mark';
+  const mr=document.createElement('div'); mr.className='center-rank'; mr.textContent=card.rank; center.appendChild(mr);
+  const ms=document.createElement('div'); ms.className='center-suit'; ms.textContent=card.suit; ms.style.fontSize=(26+Math.round(18*mag/13))+'px'; center.appendChild(ms);
+  front.appendChild(center);
+
+  const back=document.createElement('div'); back.className='backface';
+  el.appendChild(front); el.appendChild(back); wrap.appendChild(el); return wrap;
 }
+// Fidelity pip layout approximating standard casino decks
+function placePips(){ /* no-op: replaced by corner/center marks */ }
 function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._to); t._to=setTimeout(()=>t.style.display='none',ms); }
 
 const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };

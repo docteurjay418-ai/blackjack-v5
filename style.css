@@ -36,11 +36,14 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .card{ width:74px; height:104px; border-radius:12px; color:#111; border:2px solid #e7e7e7; box-shadow:0 10px 18px var(--shadow); position:relative; transform-style:preserve-3d; backface-visibility:hidden; overflow:hidden }
 .card::after{ content:""; position:absolute; inset:0; pointer-events:none; border-radius:12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 6px rgba(0,0,0,.25); }
 .card.red{ color:#c02626 }
-.corner{ position:absolute; left:7px; top:5px; text-align:center; font-weight:900; line-height:1; letter-spacing:.2px }
-.corner .rank{ font:800 18px/1 Georgia, "Times New Roman", serif } .corner .suit{ font:800 14px/1 Georgia, "Times New Roman", serif }
-.corner.br{ left:auto; right:7px; top:auto; bottom:5px; transform:rotate(180deg) }
-.pip{ position:absolute; font:800 20px/1 Georgia, "Times New Roman", serif }
-.face{ position:absolute; inset:0; display:grid; place-items:center; font:900 44px/1 Georgia, serif; opacity:.9 }
+.corner{ display:none }
+.pip, .face{ display:none }
+.corner-block{ position:absolute; left:8px; top:6px; text-align:center; line-height:1.05 }
+.corner-rank{ font:900 18px/1 Georgia, "Times New Roman", serif; letter-spacing:.2px }
+.corner-suit{ font:900 14px/1 Georgia, "Times New Roman", serif }
+.center-mark{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; line-height:1.1 }
+.center-rank{ font:900 22px/1 Georgia, serif; letter-spacing:.4px }
+.center-suit{ font:900 32px/1 Georgia, serif }
 .front{ background:
   radial-gradient(160% 100% at 20% 10%, rgba(0,0,0,.06), transparent 26%),
   radial-gradient(180% 120% at 80% 90%, rgba(0,0,0,.08), transparent 30%),
