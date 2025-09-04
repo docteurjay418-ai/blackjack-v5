@@ -1,0 +1,124 @@
+:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); }
+*{box-sizing:border-box} html,body{height:100%}
+body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; overflow:hidden; user-select:none }
+.topbar{ position:fixed; inset:0 0 auto 0; height:56px; display:flex; gap:28px; align-items:center; padding:0 18px; background:linear-gradient(#0b1a22,#0a1820); border-bottom:1px solid #0d2a34; z-index:1000 }
+.metric{font-weight:800; letter-spacing:.35px; text-transform:uppercase; display:flex; gap:8px; align-items:baseline}
+.metric b{color:var(--gold); cursor:pointer; padding:4px 6px; border-radius:8px}
+.metric b:hover{background:#132d39} .spacer{flex:1}
+.wrap{position:fixed; inset:56px 0 0 0; display:grid; place-items:center; padding:10px}
+.table{ position:relative; width:min(1400px,96vw); height:min(820px,calc(96vh - 56px)); border-radius:22px; overflow:hidden;
+  box-shadow:0 40px 120px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+  background: radial-gradient(800px 400px at 50% 45%, rgba(255,255,255,.05), transparent 70%),
+             radial-gradient(1600px 1200px at 50% 60%, var(--felt) 0%, var(--felt-d) 100%); }
+.table::before{ content:""; position:absolute; inset:0;
+  background: linear-gradient(115deg, rgba(255,255,255,.06), transparent 30%),
+             radial-gradient(1200px 800px at 50% 70%, rgba(0,0,0,.25), transparent 60%),
+             repeating-linear-gradient(20deg, rgba(255,255,255,.02) 0 2px, rgba(0,0,0,.03) 2px 4px);
+  mix-blend-mode:overlay; pointer-events:none }
+.rim{ position:absolute; inset:12px; border-radius:18px; box-shadow:inset 0 0 0 8px rgba(0,0,0,.12), inset 0 0 0 2px rgba(255,255,255,.06) }
+.svg-arches{ position:absolute; inset:auto 0 58% 0; pointer-events:none; opacity:.92 }
+.svg-arches svg{ width:100%; height:240px } .svg-arches text{ font:900 24px/1.1 "Trajan Pro", Georgia, serif; letter-spacing:2px; fill:rgba(255,255,255,.85) }
+.bet-limits{ position:absolute; right:22px; top:18px; text-align:right; opacity:.9; font-weight:700; color:#e6f8fd }
+.seats{ position:absolute; left:0; right:0; bottom:170px; display:flex; justify-content:space-evenly; align-items:center }
+.seat{ position:relative; width:280px; height:220px; display:grid; place-items:center }
+.seat .circle{ width:160px; height:160px; border-radius:999px;
+  background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), rgba(255,255,255,.04) 62%, rgba(0,0,0,.18) 64%, rgba(255,255,255,.06) 66%);
+  box-shadow:inset 0 0 40px rgba(0,0,0,.3); display:grid; place-items:center; position:relative; cursor:pointer }
+.seat .label{ position:absolute; top:-26px; font-weight:800; opacity:.9 }
+.seat .stack{ position:absolute; inset:auto 0 18px 0; display:flex; justify-content:center; gap:4px; pointer-events:none }
+.stack .chip-mini{ width:26px; height:26px; border-radius:50%; box-shadow:0 6px 12px rgba(0,0,0,.45), inset 0 0 0 4px rgba(255,255,255,.12); position:relative }
+.stack .chip-mini::before{ content:""; position:absolute; inset:6px; border-radius:50%; background:conic-gradient(from 18deg, #eee 0 18deg, transparent 18deg 36deg); opacity:.8;
+  mask: radial-gradient(circle at 50% 50%, transparent 40%, #000 41%) }
+.seat .amt{ position:absolute; bottom:10px; font-weight:900; background:rgba(0,0,0,.35); padding:6px 10px; border-radius:10px }
+.hand-area{ position:absolute; top:-40px; left:50%; transform:translateX(-50%); width:100%; min-height:120px; display:flex; justify-content:center; gap:12px }
+.total-tag{ position:absolute; top:-30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.45); padding:4px 8px; border-radius:8px; font-weight:900 }
+.dealer{ position:absolute; top:90px; left:50%; transform:translateX(-50%); text-align:center }
+.dealer .row{ display:flex; justify-content:center; gap:12px; margin-top:10px } .dealer .label{ font-weight:900; letter-spacing:.6px; opacity:.95 }
+.dealer .total{ margin-top:6px; display:inline-block; background:rgba(0,0,0,.45); padding:4px 8px; border-radius:8px; font-weight:900 }
+.card-wrap{ perspective: 800px }
+.card{ width:74px; height:104px; border-radius:10px; background:#fff; color:#111; border:2px solid #e4e4e4; box-shadow:0 10px 18px var(--shadow); position:relative; transform-style:preserve-3d; backface-visibility:hidden; }
+.card.red{ color:#c02626 }
+.corner{ position:absolute; left:6px; top:4px; text-align:center; font-weight:900; line-height:1 }
+.corner .rank{ font-size:16px } .corner .suit{ font-size:14px } .corner.br{ left:auto; right:6px; top:auto; bottom:4px; transform:rotate(180deg) }
+.pip{ position:absolute; font-size:18px } .face{ position:absolute; inset:0; display:grid; place-items:center; font-size:42px; opacity:.9 }
+.card.back, .card .backface{ background:repeating-linear-gradient(45deg,#1b4c61,#1b4c61 6px,#0f2d39 6px,#0f2d39 12px); border-color:#0f2d39 }
+.backface{ position:absolute; inset:0; border-radius:10px; transform:rotateY(180deg); backface-visibility:hidden }
+.flip{ transition: transform .45s cubic-bezier(.2,.7,.2,1) }
+.flipped{ transform: rotateY(180deg) }
+#shoeOrigin{ position:absolute; right:60px; bottom:90px; width:72px; height:30px; border-radius:8px; background:linear-gradient(#8b6b3f,#6e512e); box-shadow:0 12px 22px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.15) }
+.chips{ position:absolute; left:0; right:0; bottom:88px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap }
+.chip{ width:64px; height:64px; border-radius:999px; display:grid; place-items:center; font-weight:900; cursor:pointer; position:relative;
+  background:
+    radial-gradient(120% 100% at 30% 25%, rgba(255,255,255,.35), transparent 40%),
+    radial-gradient(120% 120% at 70% 80%, rgba(0,0,0,.45), transparent 52%),
+    var(--chip-base, #8a2b2b);
+  box-shadow:
+    0 16px 26px rgba(0,0,0,.55),
+    0 3px 6px rgba(0,0,0,.35),
+    inset 0 2px 0 rgba(255,255,255,.25),
+    inset 0 -4px 10px rgba(0,0,0,.35),
+    inset 0 14px 22px rgba(0,0,0,.25);
+  color:#fff;
+}
+/* Edge wedges on the rim */
+.chip::before{ content:""; position:absolute; inset:8px; border-radius:999px; background:
+  conic-gradient(from 18deg, var(--chip-edge) 0 18deg, transparent 18deg 36deg);
+  mask: radial-gradient(circle at 50% 50%, transparent 36%, #000 38%, #000 62%, transparent 64%);
+  box-shadow: inset 0 6px 14px rgba(0,0,0,.35), inset 0 -6px 12px rgba(0,0,0,.25);
+  opacity:.9; pointer-events:none;
+}
+/* Gloss highlight */
+.chip::after{ content:""; position:absolute; inset:0; border-radius:999px;
+  background: radial-gradient(120% 80% at 35% 20%, rgba(255,255,255,.45), rgba(255,255,255,.15) 20%, transparent 45%),
+              radial-gradient(120% 100% at 70% 85%, rgba(0,0,0,.25), transparent 45%);
+  mix-blend-mode:screen; pointer-events:none;
+}
+/* Center medallion using the <small> */
+.chip small{ display:grid; place-items:center; width:70%; height:70%; border-radius:999px; font-size:12px; color:#1a1a1a; position:relative;
+  background:
+    radial-gradient(120% 90% at 35% 20%, rgba(255,255,255,.85), rgba(255,255,255,.6) 26%, rgba(255,255,255,.4) 40%, rgba(255,255,255,.2) 60%, rgba(237,237,237,.9) 62%),
+    linear-gradient(#fafafa, #e9e9e9);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.9),
+    inset 0 -3px 8px rgba(0,0,0,.25),
+    0 1px 0 rgba(255,255,255,.65);
+  text-shadow: 0 1px 0 rgba(255,255,255,.7), 0 -1px 0 rgba(0,0,0,.15);
+}
+.chip small::before{ content:''; position:absolute; left:50%; top:38%; transform:translate(-50%,-50%);
+  width:22px; height:22px; background: no-repeat center/contain var(--logo, none);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.4)) drop-shadow(0 -1px 0 rgba(0,0,0,.2)); opacity:.95;
+}
+.chip small::after{ content:''; position:absolute; inset:-6px; border-radius:inherit;
+  background: var(--inner-ring, radial-gradient(circle, transparent, transparent));
+  mask: radial-gradient(circle at 50% 50%, transparent 68%, #000 69% 82%, transparent 83%);
+  pointer-events:none; opacity:.9;
+}
+.chip:hover{ transform: translateY(-2px) scale(1.02); filter: brightness(1.06) }
+.chip.active{ outline:4px solid rgba(255,255,255,.45); transform:translateY(-2px) }
+.chip[data-v="0.5"]{ --chip-base:#e6e6e6; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%231a1a1a'><circle cx='16' cy='16' r='6'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.15) 0 8deg, transparent 8deg 16deg) }
+.chip[data-v="1"]{ --chip-base:#1f60d6; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%231a1a1a'><circle cx='12' cy='14' r='6'/><circle cx='20' cy='14' r='6'/><circle cx='16' cy='8' r='6'/><rect x='14' y='16' width='4' height='10' rx='2'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 6deg, transparent 6deg 12deg) }
+.chip[data-v="5"]{ --chip-base:#d33a2c; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%231a1a1a'><rect x='9' y='4' width='14' height='24' rx='2' transform='rotate(45 16 16)'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 10deg, transparent 10deg 20deg) }
+.chip[data-v="25"]{ --chip-base:#2e9a2e; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%231a1a1a'><path d='M16 28s-10-6.5-10-14a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 7.5-12 14-12 14z'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.2) 0 5deg, transparent 5deg 10deg) }
+.chip[data-v="100"]{ --chip-base:#111111; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%23f0f0f0'><path d='M16 4s-12 9-12 16a6 6 0 0 0 12 2 6 6 0 0 0 12-2C28 13 16 4 16 4z'/><rect x='14' y='22' width='4' height='6' rx='1' fill='%23f0f0f0'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.28) 0 4deg, transparent 4deg 8deg) }
+.chip[data-v="500"]{ --chip-base:#6b37c8; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%231a1a1a'><polygon points='16,3 19.5,12 29,12 21,18 24,27 16,21 8,27 11,18 3,12 12.5,12'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 3deg, transparent 3deg 6deg) }
+.chip[data-v="1000"]{ --chip-base:#f39c12; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%231a1a1a'><path d='M6 18l3-7 4 3 3-6 3 6 4-3 3 7H6zM8 22h16v3H8z'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.28) 0 2deg, transparent 2deg 4deg) }
+.chip[data-v="5000"]{ --chip-base:#7a1f2e; --logo:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%23f4f4f4'><path d='M6 18l3-7 4 3 3-6 3 6 4-3 3 7H6zM8 22h16v3H8z'/></svg>"); --inner-ring: repeating-conic-gradient(rgba(255,255,255,.32) 0 2deg, transparent 2deg 4deg) }
+.controls{ position:absolute; left:0; right:0; bottom:18px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap }
+button{ border:0; background:#113445; color:#dff8ff; padding:10px 14px; font-weight:800; border-radius:12px; cursor:pointer; letter-spacing:.6px;
+  box-shadow:0 6px 16px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.05) }
+button:hover{ filter:brightness(1.08) } .hidden{ display:none !important }
+.stats{ position:absolute; left:16px; bottom:18px; font-size:12px; color:#d8eef5; opacity:.85; font-weight:600; background:rgba(0,0,0,.25); padding:8px 10px; border-radius:10px }
+.toast{ position:absolute; left:50%; transform:translateX(-50%); bottom:150px; background:rgba(0,0,0,.55); padding:10px 16px; border-radius:12px; font-weight:800; display:none }
+#dealerBank{ position:absolute; right:40px; bottom:84px; width:80px; height:40px; border-radius:10px; background:linear-gradient(#6b4928,#583b1f); box-shadow:0 10px 20px rgba(0,0,0,.5) }
+.motion{ position:fixed; width:22px; height:22px; border-radius:50%; box-shadow:0 8px 18px rgba(0,0,0,.5), inset 0 0 0 4px rgba(255,255,255,.15);
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.5), rgba(255,255,255,.15) 40%, rgba(0,0,0,.5));
+  offset-rotate: 0deg; animation: fly 650ms cubic-bezier(.23,.85,.25,1) forwards; }
+@keyframes fly { to { offset-distance: 100%; opacity:.2; } }
+
+/* Basic responsiveness tweaks */
+@media (max-width: 720px) {
+  .card{ width:62px; height:88px }
+  .seat{ width:220px; height:200px }
+  .chip{ width:56px; height:56px }
+  .chip small{ width:74%; height:74%; font-size:11px }
+}

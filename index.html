@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Blackjack — v5 (Style vidéo, cartes & jetons)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="metric">BALANCE <b id="balance">$5,000.00</b></div>
+  <div class="metric">TOTAL BET <b id="totalBet">$0.00</b></div>
+  <div class="metric">WIN <b id="winAmt">$0.00</b></div>
+  <div class="spacer"></div><div style="opacity:.8">Practice only</div>
+</div>
+
+<div class="wrap">
+  <div class="table" id="table">
+    <div class="rim"></div>
+
+    <div class="svg-arches">
+      <svg viewBox="0 0 1200 240" preserveAspectRatio="none">
+        <defs>
+          <path id="arc1" d="M100,200 A500,500 0 0,1 1100,200" />
+          <path id="arc2" d="M180,170 A420,420 0 0,1 1020,170" />
+          <path id="arc3" d="M260,142 A340,340 0 0,1 940,142" />
+        </defs>
+        <text dy="-8"><textPath href="#arc1" startOffset="50%" text-anchor="middle">CLASSIC BLACKJACK</textPath></text>
+        <text><textPath href="#arc2" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text>
+        <text dy="10"><textPath href="#arc3" startOffset="50%" text-anchor="middle">INSURANCE PAYS 2 TO 1 • DEALER MUST HIT SOFT 17</textPath></text>
+      </svg>
+    </div>
+
+    <div class="bet-limits"><b>Sans limite</b><div style="opacity:.8">Min $0.01 • Max ∞</div></div>
+    <div id="shoeOrigin" title="Shoe"></div>
+    <div id="dealerBank" title="Banque du croupier"></div>
+
+    <div class="dealer">
+      <div class="label">CROUPIER</div>
+      <div class="row" id="dealerRow"></div>
+      <div class="total" id="dealerTotal">—</div>
+    </div>
+
+    <div class="seats">
+      <div class="seat" data-idx="0"><div class="label">SEAT 1</div><div class="hand-area"><div class="total-tag">—</div></div><div class="circle"><div class="stack"></div><div class="amt">BET</div></div></div>
+      <div class="seat" data-idx="1"><div class="label">SEAT 2</div><div class="hand-area"><div class="total-tag">—</div></div><div class="circle"><div class="stack"></div><div class="amt">BET</div></div></div>
+      <div class="seat" data-idx="2"><div class="label">SEAT 3</div><div class="hand-area"><div class="total-tag">—</div></div><div class="circle"><div class="stack"></div><div class="amt">BET</div></div></div>
+    </div>
+
+    <div class="chips" id="chips">
+      <div class="chip" data-v="0.5"><small>$.50</small></div><div class="chip" data-v="1"><small>$1</small></div><div class="chip" data-v="5"><small>$5</small></div>
+      <div class="chip" data-v="25"><small>$25</small></div><div class="chip" data-v="100"><small>$100</small></div><div class="chip" data-v="500"><small>$500</small></div>
+      <div class="chip" data-v="1000"><small>$1k</small></div><div class="chip" data-v="5000"><small>$5k</small></div>
+      <button id="customChipBtn">+ Chip</button>
+    </div>
+
+    <div class="controls" id="controls">
+      <button id="clearBets" data-group="bet">Clear</button>
+      <button id="rebet" data-group="bet">Rebet</button>
+      <button id="deal" data-group="bet">Deal</button>
+      <button id="shuffle" data-group="bet">Shuffle</button>
+
+      <button id="hit" data-group="act" class="hidden">Hit</button>
+      <button id="stand" data-group="act" class="hidden">Stand</button>
+      <button id="double" data-group="act" class="hidden">Double</button>
+      <button id="split" data-group="act" class="hidden">Split</button>
+      <button id="surrender" data-group="act" class="hidden">Surrender</button>
+    </div>
+
+    <div class="stats" id="stats">Hands: 0 • Won: 0 • Lost: 0 • Push: 0</div>
+    <div class="toast" id="toast">—</div>
+  </div>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
+
