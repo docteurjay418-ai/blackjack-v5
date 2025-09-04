@@ -1,5 +1,5 @@
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const money=n=>'$'+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const money=n=>'Fun'+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const SUITS=['♠','♥','♦','♣'], RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; const COLOR=s=>(s==='♥'||s==='♦')?'red':'black';
 let shoe=[], pen=0;
 function buildShoe(decks=6){ const cards=[]; for(let d=0;d<decks;d++){ for(const s of SUITS){ for(const r of RANKS){ cards.push({rank:r,suit:s}); } } }
@@ -34,7 +34,7 @@ function renderStats(){ const s=state; $("#stats").textContent=`Hands: ${s.stats
 function totalBet(){ return state.bets.reduce((a,b)=>a+b,0); }
 
 // Vegas-style colors for mini stack chips
-const CHIP_COLORS={0.5:'#e6e6e6',1:'#1f60d6',5:'#d33a2c',25:'#2e9a2e',100:'#111111',500:'#6b37c8',1000:'#f39c12',5000:'#7a1f2e'};
+const CHIP_COLORS={0.5:'#e04b4b',1:'#555555',5:'#2e9a2e',25:'#d33a2c',100:'#111111',500:'#6b37c8',1000:'#f39c12',5000:'#7a1f2e'};
 const DENOMS=[5000,1000,500,100,25,5,1,0.5];
 function makeMiniChip(color){ const d=document.createElement('div'); d.className='chip-mini'; d.style.background=color; return d; }
 function amountToChipStack(amount){ const stack=[]; let rem=+amount.toFixed(2);
@@ -96,7 +96,7 @@ function allPlayersDone(){
 let selectedChip=5; function selectChip(v){ selectedChip=+v; document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', +c.dataset.v===selectedChip)); }
 selectChip(5);
 document.querySelector('#customChipBtn').addEventListener('click',()=>{ const val=parseFloat(prompt('Montant du jeton personnalisé:','50')); if(!isFinite(val)||val<=0) return;
-  const chip=document.createElement('div'); chip.className='chip'; chip.dataset.v=String(val); chip.innerHTML=`<small>$${val}</small>`; document.querySelector('#chips').insertBefore(chip,document.querySelector('#customChipBtn'));
+  const chip=document.createElement('div'); chip.className='chip'; chip.dataset.v=String(val); chip.innerHTML=`<small>${val}</small>`; document.querySelector('#chips').insertBefore(chip,document.querySelector('#customChipBtn'));
   chip.addEventListener('click',()=>selectChip(val)); selectChip(val); });
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>selectChip(c.dataset.v)));
 document.querySelectorAll('.seat').forEach(seat=>{ const idx=+seat.dataset.idx;
