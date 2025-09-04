@@ -195,7 +195,9 @@ function animateChipsPath(fromRect, toRect, count=8){
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML='';
   state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.display='inline-block'; if(i>0) host.style.marginLeft='-56px'; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
-  const dLabel = (state.inRound && !allPlayersDone()) ? '—' : dealerLabel(state.dealer);
+  const dLabel = (state.inRound && !allPlayersDone())
+    ? displayTotals([state.dealer[0]])
+    : dealerLabel(state.dealer);
   document.querySelector("#dealerTotal").textContent = dLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
