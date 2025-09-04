@@ -1,4 +1,4 @@
-:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); }
+:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); --chip-size:64px; }
 *{box-sizing:border-box} html,body{height:100%}
 body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; overflow:hidden; user-select:none }
 .topbar{ position:fixed; inset:0 0 auto 0; height:56px; display:flex; gap:28px; align-items:center; padding:0 18px; background:linear-gradient(#0b1a22,#0a1820); border-bottom:1px solid #0d2a34; z-index:1000 }
@@ -20,16 +20,13 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .svg-arches svg{ width:100%; height:240px } .svg-arches text{ font:900 24px/1.1 "Trajan Pro", Georgia, serif; letter-spacing:2px; fill:rgba(255,255,255,.85) }
 .bet-limits{ position:absolute; right:22px; top:18px; text-align:right; opacity:.9; font-weight:700; color:#e6f8fd }
 .seats{ position:absolute; left:0; right:0; bottom:170px; display:flex; justify-content:space-evenly; align-items:center }
-.seat{ position:relative; width:280px; height:220px; display:grid; place-items:center }
-.seat .circle{ width:160px; height:160px; border-radius:999px;
+.seat{ position:relative; width:280px; height:calc(var(--chip-size) + 64px); display:grid; place-items:center }
+.seat .circle{ width:var(--chip-size); height:var(--chip-size); border-radius:999px;
   background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), rgba(255,255,255,.04) 62%, rgba(0,0,0,.18) 64%, rgba(255,255,255,.06) 66%);
   box-shadow:inset 0 0 40px rgba(0,0,0,.3); display:grid; place-items:center; position:relative; cursor:pointer }
 .seat .label{ position:absolute; top:-26px; font-weight:800; opacity:.9 }
-.seat .stack{ position:absolute; inset:auto 0 18px 0; display:flex; justify-content:center; gap:4px; pointer-events:none }
-.stack .chip-mini{ width:26px; height:26px; border-radius:50%; box-shadow:0 6px 12px rgba(0,0,0,.45), inset 0 0 0 4px rgba(255,255,255,.12); position:relative }
-.stack .chip-mini::before{ content:""; position:absolute; inset:6px; border-radius:50%; background:conic-gradient(from 18deg, #eee 0 18deg, transparent 18deg 36deg); opacity:.8;
-  mask: radial-gradient(circle at 50% 50%, transparent 40%, #000 41%) }
-.seat .amt{ position:absolute; bottom:10px; font-weight:900; background:rgba(0,0,0,.35); padding:6px 10px; border-radius:10px }
+.seat .stack{ position:absolute; inset:0; display:block; pointer-events:none }
+.seat .amt{ position:absolute; top:calc(var(--chip-size) + 8px); font-weight:900; background:rgba(0,0,0,.35); padding:6px 10px; border-radius:10px }
 .hand-area{ position:absolute; top:-40px; left:50%; transform:translateX(-50%); width:100%; min-height:120px; display:flex; justify-content:center; gap:12px }
 .total-tag{ position:absolute; top:-30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.45); padding:4px 8px; border-radius:8px; font-weight:900 }
 .dealer{ position:absolute; top:90px; left:50%; transform:translateX(-50%); text-align:center }
@@ -47,7 +44,7 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .flipped{ transform: rotateY(180deg) }
 #shoeOrigin{ position:absolute; right:60px; bottom:90px; width:72px; height:30px; border-radius:8px; background:linear-gradient(#8b6b3f,#6e512e); box-shadow:0 12px 22px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.15) }
 .chips{ position:absolute; left:0; right:0; bottom:88px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap }
-.chip{ width:64px; height:64px; border-radius:999px; display:grid; place-items:center; font-weight:900; cursor:pointer; position:relative;
+.chip{ width:var(--chip-size); height:var(--chip-size); border-radius:999px; display:grid; place-items:center; font-weight:900; cursor:pointer; position:relative;
   background:
     radial-gradient(120% 100% at 30% 25%, rgba(255,255,255,.35), transparent 40%),
     radial-gradient(120% 120% at 70% 80%, rgba(0,0,0,.45), transparent 52%),
@@ -95,6 +92,9 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 }
 .chip:hover{ transform: translateY(-2px) scale(1.02); filter: brightness(1.06) }
 .chip.active{ outline:4px solid rgba(255,255,255,.45); transform:translateY(-2px) }
+
+/* Chips rendered on the bet circle (overlap in center) */
+.chip-seat{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none }
 .chip[data-v="0.5"]{ --chip-base:#e04b4b; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.15) 0 8deg, transparent 8deg 16deg) }
 .chip[data-v="1"]{ --chip-base:#555555; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 6deg, transparent 6deg 12deg) }
 .chip[data-v="5"]{ --chip-base:#d33a2c; --inner-ring: repeating-conic-gradient(rgba(255,255,255,.22) 0 10deg, transparent 10deg 20deg) }
@@ -119,6 +119,7 @@ button:hover{ filter:brightness(1.08) } .hidden{ display:none !important }
 @media (max-width: 720px) {
   .card{ width:62px; height:88px }
   .seat{ width:220px; height:200px }
-  .chip{ width:56px; height:56px }
+  :root{ --chip-size:56px }
+  .chip{ width:var(--chip-size); height:var(--chip-size) }
   .chip small{ width:74%; height:74%; font-size:11px }
 }

@@ -41,8 +41,27 @@ function amountToChipStack(amount){ const stack=[]; let rem=+amount.toFixed(2);
   for(const d of DENOMS){ let n = (d===0.5) ? Math.round((rem + 1e-6)/d) : Math.floor(rem/d); for(let i=0;i<n;i++) stack.push(d); rem = +(rem - d*n).toFixed(2); }
   return stack.slice(0,12);
 }
-function renderSeatStack(idx){ const seat=document.querySelector(`.seat[data-idx="${idx}"]`); const stackEl=seat.querySelector('.stack'); const amtEl=seat.querySelector('.amt'); const v=state.bets[idx];
-  stackEl.innerHTML=''; if(v<=0){ amtEl.textContent='BET'; return; } const chips=amountToChipStack(v); chips.forEach(val=>{ const chip=makeMiniChip(CHIP_COLORS[val]); stackEl.appendChild(chip); }); amtEl.textContent=money(v); }
+function renderSeatStack(idx){
+  const seat=document.querySelector(`.seat[data-idx="${idx}"]`);
+  const stackEl=seat.querySelector('.stack');
+  const amtEl=seat.querySelector('.amt');
+  const v=state.bets[idx];
+  stackEl.innerHTML='';
+  if(v<=0){ amtEl.textContent='BET'; return; }
+  const chips=amountToChipStack(v).slice(0,6);
+  const offsets=[{x:0,y:0},{x:-10,y:-10},{x:10,y:-10},{x:-10,y:10},{x:10,y:10},{x:0,y:-16}];
+  chips.forEach((val,i)=>{
+    const c=document.createElement('div');
+    c.className='chip chip-seat';
+    c.dataset.v=String(val);
+    const label = val>=1000 ? `$${val/1000}k` : `$${val}`;
+    c.innerHTML = `<small>${label}</small>`;
+    c.style.transform = `translate(calc(-50% + ${offsets[i%offsets.length].x}px), calc(-50% + ${offsets[i%offsets.length].y}px))`;
+    // color base is handled via CSS by [data-v]
+    stackEl.appendChild(c);
+  });
+  amtEl.textContent=money(v);
+}
 function refreshBetsUI(){ for(let i=0;i<3;i++) renderSeatStack(i); renderTop(); }
 function clearBets(){ state.bets=[0,0,0]; refreshBetsUI(); }
 function rebet(){ state.bets=[...state.lastBets]; refreshBetsUI(); }
