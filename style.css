@@ -41,9 +41,9 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .corner-block{ position:absolute; left:8px; top:6px; text-align:center; line-height:1.05 }
 .corner-rank{ font:900 18px/1 Georgia, "Times New Roman", serif; letter-spacing:.2px }
 .corner-suit{ font:900 14px/1 Georgia, "Times New Roman", serif }
-.center-mark{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; display:flex; flex-direction:column; align-items:center; gap:2px; line-height:1 }
-.center-rank{ font:900 26px/1 Georgia, serif; letter-spacing:.4px; margin:0; padding:0 }
-.center-suit{ font:900 34px/1 Georgia, serif; margin:0; padding:0 }
+.center-mark{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; display:flex; flex-direction:column; align-items:center; gap:1px; line-height:1 }
+.center-rank{ font:900 30px/1 Georgia, serif; letter-spacing:.4px; margin:0; padding:0 }
+.center-suit{ font:900 38px/1 Georgia, serif; margin:0; padding:0 }
 .front{ background:
   radial-gradient(160% 100% at 20% 10%, rgba(0,0,0,.06), transparent 26%),
   radial-gradient(180% 120% at 80% 90%, rgba(0,0,0,.08), transparent 30%),

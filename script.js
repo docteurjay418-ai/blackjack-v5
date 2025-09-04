@@ -23,7 +23,7 @@ function createCardEl(card, hidden=false){
 
   const center=document.createElement('div'); center.className='center-mark';
   const mr=document.createElement('div'); mr.className='center-rank'; mr.textContent=card.rank; center.appendChild(mr);
-  const ms=document.createElement('div'); ms.className='center-suit'; ms.textContent=card.suit; ms.style.fontSize=(30+Math.round(20*mag/13))+'px'; center.appendChild(ms);
+  const ms=document.createElement('div'); ms.className='center-suit'; ms.textContent=card.suit; ms.style.fontSize=(36+Math.round(24*mag/13))+'px'; center.appendChild(ms);
   front.appendChild(center);
 
   const back=document.createElement('div'); back.className='backface';
