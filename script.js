@@ -194,15 +194,15 @@ function animateChipsPath(fromRect, toRect, count=8){
 }
 
 function renderAllHands(){
-  const drow=document.querySelector("#dealerRow"); drow.innerHTML='';
-  state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.display='inline-block'; if(i>0) host.style.marginLeft='-56px'; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
+  const drow=document.querySelector("#dealerRow"); drow.innerHTML=''; drow.style.position='relative';
+  state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.position='absolute'; host.style.left='0'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; host.style.transform=`rotate(${(-8 + i*4)}deg)`; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
   const dLabel = (state.inRound && !allPlayersDone())
     ? displayTotals([state.dealer[0]])
     : dealerLabel(state.dealer);
   document.querySelector("#dealerTotal").textContent = dLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
-    h.cards.forEach((c,ci)=>{ const host=document.createElement('div'); host.style.display='inline-block'; if(ci>0) host.style.marginLeft='-56px'; host.style.zIndex=String(10+ci); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
+    h.cards.forEach((c,ci)=>{ const host=document.createElement('div'); host.style.position='absolute'; host.style.left='0'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; host.style.transform=`rotate(${(-8 + ci*4)}deg)`; host.style.zIndex=String(10+ci); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
     area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
     const bestNow = bestHandTotal(h.cards);
     if(RULES.blackjackLabelMode==='any21' && bestNow.total===21){
