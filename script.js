@@ -24,7 +24,18 @@ function createCardEl(card, hidden=false){
   front.appendChild(center);
 
   const back=document.createElement('div'); back.className='backface';
-  el.appendChild(front); el.appendChild(back); wrap.appendChild(el); return wrap;
+  el.appendChild(front); el.appendChild(back); wrap.appendChild(el);
+  requestAnimationFrame(()=>{
+    const normalize=(node, baseTransform, targetPx)=>{
+      try{
+        const h=node.getBoundingClientRect().height||0; if(h<=0) return;
+        const s=targetPx/h; node.style.transformOrigin='50% 50%'; node.style.transform = baseTransform + ` scale(${s})`;
+      }catch{}
+    };
+    normalize(center, 'translate(-50%, -50%)', 60);
+    normalize(corner, '', 26);
+  });
+  return wrap;
 }
 // Fidelity pip layout approximating standard casino decks
 function placePips(){ /* no-op: replaced by corner/center marks */ }
