@@ -2,6 +2,11 @@ const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(
 const money=n=>'$'+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const SUITS=['♠','♥','♦','♣'], RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; const COLOR=s=>(s==='♥'||s==='♦')?'red':'black';
 
+/* ====================== RÉGLAGES D'AFFICHAGE ====================== */
+// 'natural' -> "BLACKJACK!" seulement pour 21 en 2 cartes (A + 10/J/Q/K)
+// 'any21'   -> "BLACKJACK!" dès que la main vaut 21 au meilleur total (même à 3+ cartes)
+const RULES = { blackjackLabelMode: 'any21' };
+
 
 // ============================== Utils Cartes =============================
 // Accepte objets {rank:'A'..'K', suit:'S'|'H'|'D'|'C'|symbol} ou chaînes "AS","10H","QD","3C"
@@ -142,12 +147,27 @@ function animateChipsPath(fromRect, toRect, count=8){
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML='';
   state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
-  const dealerLabel = (state.inRound && !allPlayersDone()) ? '—' : displayTotals(state.dealer);
+  let dealerLabel = (state.inRound && !allPlayersDone()) ? '—' : displayTotals(state.dealer);
+  if(!(state.inRound && !allPlayersDone())){
+    const dealerBest = bestHandTotal(state.dealer);
+    const dealerNat = isBlackjack(state.dealer);
+    if(RULES.blackjackLabelMode==='natural'){
+      if(dealerNat) dealerLabel = 'BLACKJACK!';
+    } else {
+      if(dealerBest.total===21) dealerLabel = 'BLACKJACK!';
+    }
+  }
   document.querySelector("#dealerTotal").textContent = dealerLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
     h.cards.forEach(c=>{ const host=document.createElement('div'); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
-    area.appendChild(wrap); const totalEl=area.querySelector('.total-tag'); totalEl.textContent=displayTotals(h.cards);
+    area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
+    const best = bestHandTotal(h.cards); const nat = isBlackjack(h.cards);
+    if(RULES.blackjackLabelMode==='natural'){
+      totalEl.textContent = nat ? 'BLACKJACK!' : displayTotals(h.cards);
+    } else {
+      totalEl.textContent = best.total===21 ? 'BLACKJACK!' : displayTotals(h.cards);
+    }
     if(i===state.activeSeat && hi===state.activeHand && state.inRound && !h.done){ totalEl.style.outline='3px solid rgba(255,255,255,.45)'; } else totalEl.style.outline='none'; }); });
 }
 
