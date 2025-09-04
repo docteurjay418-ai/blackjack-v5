@@ -106,6 +106,15 @@ function createCardEl(card, hidden=false){
 function placePips(){ /* no-op: replaced by corner/center marks */ }
 function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._to); t._to=setTimeout(()=>t.style.display='none',ms); }
 
+// ============================== Deal sound =============================
+let dealSound;
+try{
+  dealSound = new Audio('assets/sounds/deal.mp3');
+  dealSound.volume = 0.35;
+  dealSound.onerror = ()=>{ try{ dealSound.src='assets/sounds/deal.wav'; }catch(e){} };
+}catch(e){}
+function playDealSound(){ try{ if(dealSound){ dealSound.currentTime=0; dealSound.play().catch(()=>{}); } }catch(e){} }
+
 const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,awaitInsurance:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };
 class Hand{ constructor(bet){ this.bet=bet; this.cards=[]; this.done=false; this.surrender=false; this.doubled=false; this.insurance=0; this.isSplitAce=false; }}
 
@@ -147,10 +156,12 @@ function clearBets(){ state.bets=[0,0,0]; refreshBetsUI(); }
 function rebet(){ state.bets=[...state.lastBets]; refreshBetsUI(); }
 
 function createAndAnimateCard(toEl, card, faceUp=true){ const temp=createCardEl(card,true); document.body.appendChild(temp);
-  const start=document.querySelector("#shoeOrigin").getBoundingClientRect(); const end=toEl.getBoundingClientRect();
-  const cx=start.left+start.width/2, cy=start.top+start.height/2, tx=end.left+end.width/2, ty=end.top+end.height/2;
-  temp.style.position='fixed'; temp.style.left=(cx-37)+'px'; temp.style.top=(cy-52)+'px'; temp.style.transition='transform .35s cubic-bezier(.2,.7,.25,1)';
-  requestAnimationFrame(()=>{ temp.style.transform=`translate(${tx-cx}px, ${ty-cy}px) rotate(${Math.floor(Math.random()*9-4)}deg)`; });
+  const end=toEl.getBoundingClientRect();
+  const tx=end.left+end.width/2, ty=end.top+end.height/2;
+  const startY = -120; // start from top of screen
+  temp.style.position='fixed'; temp.style.left=(tx-37)+'px'; temp.style.top=startY+'px'; temp.style.transition='transform .42s cubic-bezier(.2,.8,.2,1), opacity .42s'; temp.style.opacity='0.95';
+  playDealSound();
+  requestAnimationFrame(()=>{ temp.style.transform=`translate(0px, ${ty-startY}px) rotate(${Math.floor(Math.random()*9-4)}deg)`; });
   return new Promise(res=>{ temp.addEventListener('transitionend', ()=>{ const real=createCardEl(card,!faceUp); toEl.appendChild(real); if(faceUp){ setTimeout(()=>{ real.querySelector('.card').classList.remove('flipped'); }, 20); } temp.remove(); res(); }, {once:true}); });
 }
 function flipHoleCard(){ const row=document.querySelector("#dealerRow"); const last=row.children[1]; if(!last) return; last.querySelector('.card').classList.remove('flipped'); }
@@ -165,12 +176,12 @@ function animateChipsPath(fromRect, toRect, count=8){
 
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML='';
-  state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
+  state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.display='inline-block'; if(i>0) host.style.marginLeft='-56px'; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
   const dLabel = (state.inRound && !allPlayersDone()) ? '—' : dealerLabel(state.dealer);
   document.querySelector("#dealerTotal").textContent = dLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
-    h.cards.forEach(c=>{ const host=document.createElement('div'); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
+    h.cards.forEach((c,ci)=>{ const host=document.createElement('div'); host.style.display='inline-block'; if(ci>0) host.style.marginLeft='-56px'; host.style.zIndex=String(10+ci); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
     area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
     const bestNow = bestHandTotal(h.cards);
     if(RULES.blackjackLabelMode==='any21' && bestNow.total===21){
@@ -355,7 +366,12 @@ function settlePayouts(){
   }
   toast(win>=0?`Tu gagnes ${money(win)}`:`Tu perds ${money(-win)}`,1800);
   state.inRound=false; refreshControls();
+  setTimeout(()=>{
+    state.hands=[[],[],[]]; state.dealer=[]; state.win=0; state.bets=[0,0,0]; state.lastBets=[0,0,0];
+    renderAllHands(); refreshBetsUI(); renderTop();
+  }, 2000);
 }
+
 
 document.querySelector('#deal').addEventListener('click', startRound);
 document.querySelector('#clearBets').addEventListener('click',()=>{ if(state.inRound) return; clearBets(); });
