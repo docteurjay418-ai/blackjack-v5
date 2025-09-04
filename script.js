@@ -106,7 +106,7 @@ function createCardEl(card, hidden=false){
 function placePips(){ /* no-op: replaced by corner/center marks */ }
 function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._to); t._to=setTimeout(()=>t.style.display='none',ms); }
 
-// ============================== Deal sound =============================
+// ============================== Sounds =============================
 let dealSounds = [];
 try{
   for(let i=1;i<=6;i++){
@@ -124,6 +124,13 @@ function playDealSound(){
     }
   }catch(e){}
 }
+
+let chipSound;
+try{
+  chipSound = new Audio('assets/chip%20sounds/chips-stack-6.ogg');
+  chipSound.volume = 0.45;
+}catch(e){}
+function playChipSound(){ try{ if(chipSound){ chipSound.currentTime=0; chipSound.play().catch(()=>{}); } }catch(e){} }
 
 const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,awaitInsurance:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };
 class Hand{ constructor(bet){ this.bet=bet; this.cards=[]; this.done=false; this.surrender=false; this.doubled=false; this.insurance=0; this.isSplitAce=false; }}
@@ -162,8 +169,8 @@ function renderSeatStack(idx){
   amtEl.textContent=money(v);
 }
 function refreshBetsUI(){ for(let i=0;i<3;i++) renderSeatStack(i); renderTop(); }
-function clearBets(){ state.bets=[0,0,0]; refreshBetsUI(); }
-function rebet(){ state.bets=[...state.lastBets]; refreshBetsUI(); }
+function clearBets(){ state.bets=[0,0,0]; refreshBetsUI(); playChipSound(); }
+function rebet(){ state.bets=[...state.lastBets]; refreshBetsUI(); playChipSound(); }
 
 function createAndAnimateCard(toEl, card, faceUp=true){ const temp=createCardEl(card,true); document.body.appendChild(temp);
   const end=toEl.getBoundingClientRect();
@@ -178,6 +185,7 @@ function flipHoleCard(){ const row=document.querySelector("#dealerRow"); const l
 
 function pathArc(x1,y1,x2,y2,curve=0.3){ const dx=x2-x1; const cx1=x1+dx*curve, cy1=y1-80; const cx2=x2-dx*curve, cy2=y2-80; return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`; }
 function animateChipsPath(fromRect, toRect, count=8){
+  playChipSound();
   for(let i=0;i<count;i++){ const el=document.createElement('div'); el.className='motion'; document.body.appendChild(el);
     const sx=fromRect.left+fromRect.width/2+(Math.random()*20-10), sy=fromRect.top+fromRect.height/2+(Math.random()*16-8);
     const tx=toRect.left+toRect.width/2+(Math.random()*20-10), ty=toRect.top+toRect.height/2+(Math.random()*16-8);
@@ -243,8 +251,8 @@ document.querySelector('#customChipBtn').addEventListener('click',()=>{ const va
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>selectChip(c.dataset.v)));
 document.querySelectorAll('.seat').forEach(seat=>{ const idx=+seat.dataset.idx;
   const circle = seat.querySelector('.circle');
-  circle.addEventListener('click',()=>{ if(state.inRound) return; state.bets[idx]=+(state.bets[idx]+selectedChip).toFixed(2); state.lastBets[idx]=state.bets[idx]; renderSeatStack(idx); renderTop(); });
-  circle.addEventListener('contextmenu',e=>{ e.preventDefault(); if(state.inRound) return; state.bets[idx]=Math.max(0, +(state.bets[idx]-selectedChip).toFixed(2)); renderSeatStack(idx); renderTop(); });
+  circle.addEventListener('click',()=>{ if(state.inRound) return; state.bets[idx]=+(state.bets[idx]+selectedChip).toFixed(2); state.lastBets[idx]=state.bets[idx]; renderSeatStack(idx); renderTop(); playChipSound(); });
+  circle.addEventListener('contextmenu',e=>{ e.preventDefault(); if(state.inRound) return; state.bets[idx]=Math.max(0, +(state.bets[idx]-selectedChip).toFixed(2)); renderSeatStack(idx); renderTop(); playChipSound(); });
   // Removed dblclick-to-clear to prevent accidental reset when clicking fast
 });
 
