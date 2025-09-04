@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lancement — Blackjack v5</title>
+  <style>
+    :root{--bg:#0b1b23;--panel:#102733;--text:#e9f6fb;--accent:#ffd973;--muted:#9ec7d4}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;display:grid;place-items:center;padding:24px}
+    .card{width:min(920px,94vw);padding:28px 24px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%),var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06)}
+    h1{margin:0 0 14px;font-size:22px}
+    p{margin:0 0 18px;color:var(--muted)}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0 8px}
+    a.btn,button.btn{appearance:none;border:0;cursor:pointer;text-decoration:none;color:#0c2833;background:#dff8ff;font-weight:800;letter-spacing:.4px;border-radius:12px;padding:12px 16px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 22px rgba(0,0,0,.35), inset 0 0 0 2px rgba(0,0,0,.06)}
+    a.btn.primary{background:#113445;color:#dff8ff}
+    a.btn:hover,button.btn:hover{filter:brightness(1.08)}
+    code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:6px}
+    .grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:8px}
+    @media (min-width: 800px){ .grid{grid-template-columns:1fr 1fr} }
+    .panel{background:rgba(0,0,0,.18);border-radius:14px;padding:16px}
+    .panel h2{margin:0 0 10px;font-size:16px}
+    ul{margin:0;padding-left:18px}
+  </style>
+  <script>
+    function openIndex(){ location.href = 'index.html'; }
+  </script>
+  </head>
+<body>
+  <div class="card">
+    <h1>Blackjack v5 — Lancement</h1>
+    <p>Page de démarrage pour ouvrir rapidement l’application et voir les raccourcis utiles.</p>
+
+    <div class="actions">
+      <a class="btn primary" href="index.html">Ouvrir le jeu</a>
+      <a class="btn" href="https://github.com/docteurjay418-ai/blackjack-v5" target="_blank" rel="noreferrer">Voir le dépôt</a>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h2>Contrôles clavier</h2>
+        <ul>
+          <li><code>D</code> — Deal</li>
+          <li><code>H</code> — Hit</li>
+          <li><code>S</code> — Stand</li>
+          <li><code>2</code> — Double</li>
+          <li><code>P</code> — Split</li>
+          <li><code>U</code> — Surrender</li>
+          <li><code>R</code> — Rebet (hors manche)</li>
+          <li><code>C</code> — Clear (hors manche)</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Conseils</h2>
+        <ul>
+          <li>Ctrl+F5 pour ignorer le cache.</li>
+          <li>Serveur local conseillé: <code>py -m http.server 8000</code> puis <code>http://localhost:8000</code>.</li>
+          <li>L’ancien fichier <code>blackjack_table_v5_video_style.html</code> est gardé en référence.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
