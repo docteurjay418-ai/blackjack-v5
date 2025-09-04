@@ -4,3 +4,6 @@
 [submodule "assets/playing-cards-assets"]
 	path = assets/playing-cards-assets
 	url = https://github.com/hayeah/playing-cards-assets.git
+[submodule "external/blackjack-engine"]
+	path = external/blackjack-engine
+	url = https://github.com/ChrisZieba/blackjack
