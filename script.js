@@ -8,22 +8,19 @@ function buildShoe(decks=6){ const cards=[]; for(let d=0;d<decks;d++){ for(const
 function drawCard(){ if(shoe.length<=pen) buildShoe(); return shoe.pop(); }
 function handValue(cards){ let total=0, aces=0; for(const c of cards){ if(c.rank==='A'){aces++; total+=11;} else if(['10','J','Q','K'].includes(c.rank)){ total+=10; } else total+=parseInt(c.rank,10); }
   while(total>21 && aces>0){ total-=10; aces--; } const soft=(aces>0 && total<=21); const isBJ=(cards.length===2 && total===21); return {total,soft,isBJ}; }
-function rankMagnitude(r){ switch(r){ case 'A': return 1; case 'J': return 11; case 'Q': return 12; case 'K': return 13; default: return parseInt(r,10)||10; } }
 function createCardEl(card, hidden=false){
   const wrap=document.createElement('div'); wrap.className='card-wrap';
   const el=document.createElement('div'); el.className='card flip'+(hidden?' flipped':'');
   if(COLOR(card.suit)==='red') el.classList.add('red');
   const front=document.createElement('div'); front.className='front'; front.style.position='absolute'; front.style.inset='0'; front.style.borderRadius='12px'; front.style.backfaceVisibility='hidden';
-
-  const mag=rankMagnitude(card.rank);
   const corner=document.createElement('div'); corner.className='corner-block';
   const cr=document.createElement('div'); cr.className='corner-rank'; cr.textContent=card.rank; corner.appendChild(cr);
-  const cs=document.createElement('div'); cs.className='corner-suit'; cs.textContent=card.suit; cs.style.fontSize=(10+Math.round(6*mag/13))+'px'; corner.appendChild(cs);
+  const cs=document.createElement('div'); cs.className='corner-suit'; cs.textContent=card.suit; corner.appendChild(cs);
   front.appendChild(corner);
 
   const center=document.createElement('div'); center.className='center-mark';
   const mr=document.createElement('div'); mr.className='center-rank'; mr.textContent=card.rank; center.appendChild(mr);
-  const ms=document.createElement('div'); ms.className='center-suit'; ms.textContent=card.suit; ms.style.fontSize=(36+Math.round(24*mag/13))+'px'; center.appendChild(ms);
+  const ms=document.createElement('div'); ms.className='center-suit'; ms.textContent=card.suit; center.appendChild(ms);
   front.appendChild(center);
 
   const back=document.createElement('div'); back.className='backface';
