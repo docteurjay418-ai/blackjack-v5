@@ -15,6 +15,10 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
              radial-gradient(1200px 800px at 50% 70%, rgba(0,0,0,.25), transparent 60%),
              repeating-linear-gradient(20deg, rgba(255,255,255,.02) 0 2px, rgba(0,0,0,.03) 2px 4px);
   mix-blend-mode:overlay; pointer-events:none }
+/* Felt texture overlay (ambientCG Fabric017). Place Color map at assets/fabric/Fabric017_Color.jpg */
+.table::after{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.28; mix-blend-mode:multiply;
+  background-image: url('assets/fabric/Fabric017_Color.jpg');
+  background-size: 520px 520px; background-repeat: repeat; background-position:center; }
 .rim{ position:absolute; inset:12px; border-radius:18px; box-shadow:inset 0 0 0 8px rgba(0,0,0,.12), inset 0 0 0 2px rgba(255,255,255,.06) }
 .svg-arches{ position:absolute; inset:auto 0 58% 0; pointer-events:none; opacity:.92 }
 .svg-arches svg{ width:100%; height:240px } .svg-arches text{ font:900 24px/1.1 "Trajan Pro", Georgia, serif; letter-spacing:2px; fill:rgba(255,255,255,.85) }
