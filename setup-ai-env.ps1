@@ -1,6 +1,6 @@
 param(
   [string]$EnvName = "bj-tf",
-  [string]$RepoPath = "$(Resolve-Path .)\Artificial-Intelligence-in-BlackJack-Card-Counting"
+  [string]$RepoPath = "$(Join-Path (Resolve-Path .) 'Artificial-Intelligence-in-BlackJack-Card-Counting')"
 )
 
 Write-Host "Setting up environment '$EnvName' for repo: $RepoPath" -ForegroundColor Cyan
@@ -21,20 +21,31 @@ function Install-With-Conda {
 }
 
 function Install-With-Venv {
-  param([string]$ReqFile)
+  param(
+    [string]$RepoPath,
+    [string]$ReqFile
+  )
   Write-Host "Conda not found. Using Python 3.11 venv…" -ForegroundColor Green
-  $py311 = & py -3.11 -c "import sys;print(sys.version.split()[0])" 2>$null
-  if (-not $py311) { Write-Error "Python 3.11 not found. Install from https://www.python.org/downloads/"; exit 1 }
+  $hasPy311 = $false
+  try { & py -3.11 -c "import sys;print(sys.version)" 2>$null | Out-Null; if ($LASTEXITCODE -eq 0) { $hasPy311 = $true } } catch {}
+  if (-not $hasPy311) {
+    try {
+      $ver = & python -c "import sys;print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>$null
+      if ($LASTEXITCODE -ne 0 -or $ver -ne "3.11") { throw "no311" }
+    } catch {
+      Write-Error "Python 3.11 not found. Install from https://www.python.org/downloads/"
+      exit 1
+    }
+  }
   Push-Location $RepoPath
   try {
-    py -3.11 -m venv .venv || throw "venv create failed"
-    .\.venv\Scripts\Activate.ps1
-    python -m pip install -U pip
+    if ($hasPy311) { py -3.11 -m venv .venv } else { python -m venv .venv }
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path .venv)) { throw "venv create failed" }
+    & .\.venv\Scripts\Activate.ps1
+    python -m pip install -U pip setuptools wheel
     python -m pip install -r $ReqFile || throw "Pip install failed"
     Write-Host "Done. Activate next time with: `"$RepoPath\.venv\Scripts\Activate.ps1`"" -ForegroundColor Yellow
-  } finally {
-    Pop-Location
-  }
+  } finally { Pop-Location }
 }
 
 # Prefer pinned requirements for Windows compatibility
@@ -47,8 +58,7 @@ try {
   else { throw "conda missing" }
 }
 catch {
-  Install-With-Venv -ReqFile $req
+  Install-With-Venv -RepoPath $RepoPath -ReqFile $req
 }
 
 Write-Host "Environment setup complete." -ForegroundColor Cyan
-
