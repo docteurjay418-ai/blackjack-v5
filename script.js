@@ -222,12 +222,31 @@ function updateActionsForActive(){
   if(!state.inRound || state.awaitInsurance){ setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false}); return; }
   const h=currentHand(); if(!h){ setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false}); return; }
   const v=handValue(h.cards);
-  const canHit = v.total<21 && !(h.isSplitAce && h.cards.length>=2);
-  const canStand = true;
-  const canDouble = (h.cards.length===2) && state.balance>=h.bet && !(h.isSplitAce);
+  let canHit = v.total<21 && !(h.isSplitAce && h.cards.length>=2);
+  let canStand = true;
+  let canDouble = (h.cards.length===2) && state.balance>=h.bet && !(h.isSplitAce);
   const v10=r=>['10','J','Q','K'].includes(r);
-  const canSplit = (h.cards.length===2) && (h.cards[0].rank===h.cards[1].rank || (v10(h.cards[0].rank)&&v10(h.cards[1].rank))) && state.balance>=h.bet && (state.hands[state.activeSeat].length<4);
-  const canSurrender = (h.cards.length===2);
+  let canSplit = (h.cards.length===2) && (h.cards[0].rank===h.cards[1].rank || (v10(h.cards[0].rank)&&v10(h.cards[1].rank))) && state.balance>=h.bet && (state.hands[state.activeSeat].length<4);
+  let canSurrender = (h.cards.length===2);
+
+  // Validate against engine allowed actions
+  try{
+    const engine = new Blackjack.Game('Player','Dealer',{numberOfDecks:1, dealerHitSoft17:true});
+    engine.player.cards = h.cards.map(c=>({rank:String(c.rank), suit: c.suit==='♠'?'♠':c.suit==='♥'?'♥':c.suit==='♦'?'♦':'♣'}));
+    engine.player.history = []; if(h.doubled) engine.player.history.push('Double'); if(h.isSplitAce || (state.hands[state.activeSeat]||[]).length>1) engine.player.history.push('Split');
+    const acts = engine.player.getActions();
+    const allow = {
+      Hit: acts.includes('Hit'),
+      Stand: acts.includes('Stand'),
+      Double: acts.includes('Double'),
+      Split: acts.includes('Split')
+    };
+    canHit = canHit && allow.Hit;
+    canStand = canStand && allow.Stand;
+    canDouble = canDouble && allow.Double;
+    canSplit = canSplit && allow.Split;
+  }catch(e){ /* engine optional */ }
+
   setActionVisibility({hit:canHit, stand:canStand, double:canDouble, split:canSplit, surrender:canSurrender});
 }
 
