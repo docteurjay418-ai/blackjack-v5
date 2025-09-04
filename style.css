@@ -1,4 +1,4 @@
-:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); --chip-size:64px; }
+:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); --chip-size:64px; --paper:#fdfdfc; }
 *{box-sizing:border-box} html,body{height:100%}
 body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; overflow:hidden; user-select:none }
 .topbar{ position:fixed; inset:0 0 auto 0; height:56px; display:flex; gap:28px; align-items:center; padding:0 18px; background:linear-gradient(#0b1a22,#0a1820); border-bottom:1px solid #0d2a34; z-index:1000 }
@@ -27,19 +27,40 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .seat .label{ position:absolute; top:-26px; font-weight:800; opacity:.9 }
 .seat .stack{ position:absolute; inset:0; display:block; pointer-events:none; z-index:1 }
 .seat .amt{ position:absolute; top:calc(var(--chip-size) + 8px); font-weight:900; background:rgba(0,0,0,.35); padding:6px 10px; border-radius:10px }
-.hand-area{ position:absolute; top:-40px; left:50%; transform:translateX(-50%); width:100%; min-height:120px; display:flex; justify-content:center; gap:12px; z-index:2 }
+.hand-area{ position:absolute; top:calc(-1 * (var(--chip-size) + 28px)); left:50%; transform:translateX(-50%); width:100%; min-height:120px; display:flex; justify-content:center; gap:12px; z-index:2 }
 .total-tag{ position:absolute; top:-30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.45); padding:4px 8px; border-radius:8px; font-weight:900 }
 .dealer{ position:absolute; top:90px; left:50%; transform:translateX(-50%); text-align:center }
 .dealer .row{ display:flex; justify-content:center; gap:12px; margin-top:10px } .dealer .label{ font-weight:900; letter-spacing:.6px; opacity:.95 }
 .dealer .total{ margin-top:6px; display:inline-block; background:rgba(0,0,0,.45); padding:4px 8px; border-radius:8px; font-weight:900 }
 .card-wrap{ perspective: 800px }
-.card{ width:74px; height:104px; border-radius:10px; background:#fff; color:#111; border:2px solid #e4e4e4; box-shadow:0 10px 18px var(--shadow); position:relative; transform-style:preserve-3d; backface-visibility:hidden; }
+.card{ width:74px; height:104px; border-radius:12px; color:#111; border:2px solid #e7e7e7; box-shadow:0 10px 18px var(--shadow); position:relative; transform-style:preserve-3d; backface-visibility:hidden; overflow:hidden }
+.card::after{ content:""; position:absolute; inset:0; pointer-events:none; border-radius:12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 6px rgba(0,0,0,.25); }
 .card.red{ color:#c02626 }
-.corner{ position:absolute; left:6px; top:4px; text-align:center; font-weight:900; line-height:1 }
-.corner .rank{ font-size:16px } .corner .suit{ font-size:14px } .corner.br{ left:auto; right:6px; top:auto; bottom:4px; transform:rotate(180deg) }
-.pip{ position:absolute; font-size:18px } .face{ position:absolute; inset:0; display:grid; place-items:center; font-size:42px; opacity:.9 }
-.card.back, .card .backface{ background:repeating-linear-gradient(45deg,#1b4c61,#1b4c61 6px,#0f2d39 6px,#0f2d39 12px); border-color:#0f2d39 }
-.backface{ position:absolute; inset:0; border-radius:10px; transform:rotateY(180deg); backface-visibility:hidden }
+.corner{ position:absolute; left:7px; top:5px; text-align:center; font-weight:900; line-height:1; letter-spacing:.2px }
+.corner .rank{ font:800 18px/1 Georgia, "Times New Roman", serif } .corner .suit{ font:800 14px/1 Georgia, "Times New Roman", serif }
+.corner.br{ left:auto; right:7px; top:auto; bottom:5px; transform:rotate(180deg) }
+.pip{ position:absolute; font:800 20px/1 Georgia, "Times New Roman", serif }
+.face{ position:absolute; inset:0; display:grid; place-items:center; font:900 44px/1 Georgia, serif; opacity:.9 }
+.front{ background:
+  radial-gradient(160% 100% at 20% 10%, rgba(0,0,0,.06), transparent 26%),
+  radial-gradient(180% 120% at 80% 90%, rgba(0,0,0,.08), transparent 30%),
+  var(--paper);
+}
+.card .front, .card .backface{ border-radius:12px }
+.card.back, .card .backface{ background:
+  linear-gradient(180deg, rgba(255,255,255,.06), transparent 24%),
+  repeating-linear-gradient(45deg, #165064 0 10px, #0e3a49 10px 20px);
+  border-color:#0f2d39 }
+.backface{ position:absolute; inset:0; transform:rotateY(180deg); backface-visibility:hidden }
+.backface::before{ content:'♠'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:50px; height:50px; border-radius:999px;
+  display:grid; place-items:center; color:#ffedb8; font:900 26px/1 Georgia, serif; letter-spacing:1px;
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.2), transparent 40%),
+    radial-gradient(120% 140% at 70% 80%, rgba(0,0,0,.35), transparent 50%),
+    #143a49;
+  box-shadow: 0 8px 18px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -4px 10px rgba(0,0,0,.35);
+  outline: 3px solid #11323f; border:2px solid #e6d38b; }
+.backface::after{ content:"CLASSIC BLACKJACK"; position:absolute; left:50%; top:calc(50% + 40px); transform:translateX(-50%); font:700 10px/1 system-ui, sans-serif; color:rgba(255,255,255,.85); letter-spacing:1.8px }
 .flip{ transition: transform .45s cubic-bezier(.2,.7,.2,1) }
 .flipped{ transform: rotateY(180deg) }
 #shoeOrigin{ position:absolute; right:60px; bottom:90px; width:72px; height:30px; border-radius:8px; background:linear-gradient(#8b6b3f,#6e512e); box-shadow:0 12px 22px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.15) }
