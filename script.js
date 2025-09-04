@@ -42,9 +42,11 @@ function bestHandTotal(cards){
 }
 function displayTotals(cards){
   const totals=allHandTotals(cards);
-  const under21=totals.filter(t=>t<=21);
-  if(under21.length>1) return `${under21[0]} / ${under21[under21.length-1]}`;
-  return `${under21[0] ?? totals[0]}`;
+  const max=totals[totals.length-1];
+  const under=totals.filter(t=>t<=21);
+  if(under.length===0) return 'BUST';
+  const min=under[0];
+  return (min!==max) ? `${min} / ${max}` : String(min);
 }
 function isTenCard(rank){ return rank==='10'||rank==='J'||rank==='Q'||rank==='K'; }
 function isBlackjack(rawCards){
@@ -140,11 +142,12 @@ function animateChipsPath(fromRect, toRect, count=8){
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML='';
   state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
-  const dv=handValue(state.dealer); document.querySelector("#dealerTotal").textContent=(state.inRound && !allPlayersDone()? '—' : (dv.total<=21? (dv.total+(dv.soft?' (soft)':'')) : 'BUST'));
+  const dealerLabel = (state.inRound && !allPlayersDone()) ? '—' : displayTotals(state.dealer);
+  document.querySelector("#dealerTotal").textContent = dealerLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
     h.cards.forEach(c=>{ const host=document.createElement('div'); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
-    area.appendChild(wrap); const v=handValue(h.cards); const totalEl=area.querySelector('.total-tag'); totalEl.textContent=v.total<=21? v.total+(v.soft?' (soft)':'') : 'BUST';
+    area.appendChild(wrap); const totalEl=area.querySelector('.total-tag'); totalEl.textContent=displayTotals(h.cards);
     if(i===state.activeSeat && hi===state.activeHand && state.inRound && !h.done){ totalEl.style.outline='3px solid rgba(255,255,255,.45)'; } else totalEl.style.outline='none'; }); });
 }
 
