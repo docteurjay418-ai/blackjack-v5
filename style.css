@@ -63,6 +63,30 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 }
 .front img.face-img{ width:100%; height:100%; object-fit:contain; display:block }
 .card .front, .card .backface{ border-radius:10px }
+.backface{
+  position:absolute; inset:0; transform:rotateY(180deg); backface-visibility:hidden; border-radius:10px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.05), transparent 24%),
+    repeating-linear-gradient(45deg, #165064 0 10px, #0e3a49 10px 20px);
+  border:2px solid #e6d38b; /* gold outer ring */
+  box-shadow: inset 0 0 0 3px #11323f; /* dark inner ring */
+}
+.backface::before{
+  content:'\2660'; /* spade */ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:56px; height:56px; border-radius:999px; display:grid; place-items:center;
+  color:#ffedb8; font:900 26px/1 Georgia, serif; letter-spacing:1px;
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.2), transparent 40%),
+    radial-gradient(120% 140% at 70% 80%, rgba(0,0,0,.35), transparent 50%),
+    #143a49;
+  box-shadow: 0 8px 18px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -4px 10px rgba(0,0,0,.35);
+  outline: 3px solid #11323f; border:2px solid #e6d38b;
+}
+.backface::after{
+  content:"CLASSIC BLACKJACK"; position:absolute; left:50%; top:calc(50% + 44px); transform:translateX(-50%);
+  font:700 10px/1 system-ui, sans-serif; color:rgba(255,255,255,.9); letter-spacing:1.8px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
 .card.back, .card .backface{ border-color:#0f2d39 }
 .backface{ position:absolute; inset:0; transform:rotateY(180deg); backface-visibility:hidden; background: url('assets/playing-cards-assets/png/back.png') center/cover no-repeat }
 .flip{ transition: transform .45s cubic-bezier(.2,.7,.2,1) }
