@@ -1,13 +1,67 @@
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const money=n=>'$'+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const SUITS=['♠','♥','♦','♣'], RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; const COLOR=s=>(s==='♥'||s==='♦')?'red':'black';
+
+
+// ============================== Utils Cartes =============================
+// Accepte objets {rank:'A'..'K', suit:'S'|'H'|'D'|'C'|symbol} ou chaînes "AS","10H","QD","3C"
+const SUIT_LETTER_TO_SYMBOL={ S:'♠', H:'♥', D:'♦', C:'♣' };
+function normalizeCard(card){
+  if(typeof card==='string'){
+    const r=card.slice(0, card.length-1).toUpperCase();
+    const sLetter=card.slice(-1).toUpperCase();
+    const s = SUIT_LETTER_TO_SYMBOL[sLetter] || sLetter;
+    return {rank:r, suit:s};
+  }
+  if(card && typeof card==='object'){
+    const rank = String(card.rank).toUpperCase();
+    let suit = card.suit;
+    if(typeof suit==='string' && suit.length==1 && SUIT_LETTER_TO_SYMBOL.get?.(suit.toUpperCase())) suit = SUIT_LETTER_TO_SYMBOL[suit.toUpperCase()];
+    else if(typeof suit==='string' && suit.length==1 && suit.toUpperCase() in SUIT_LETTER_TO_SYMBOL) suit = SUIT_LETTER_TO_SYMBOL[suit.toUpperCase()];
+    return {rank, suit};
+  }
+  return card;
+}
+function baseValue(rank){
+  if(rank==='A') return 1; // compter d'abord les As à 1
+  if(rank==='K'||rank==='Q'||rank==='J') return 10;
+  return Number(rank);
+}
+function allHandTotals(rawCards){
+  const cards = rawCards.map(normalizeCard);
+  let nonAces=0, aceCount=0;
+  for(const c of cards){ if(c.rank==='A') aceCount++; else nonAces += baseValue(c.rank); }
+  const totals=new Set([nonAces + aceCount]);
+  for(let k=1;k<=aceCount;k++) totals.add(nonAces + aceCount + 10*k);
+  return Array.from(totals).sort((a,b)=>a-b);
+}
+function bestHandTotal(cards){
+  const totals=allHandTotals(cards);
+  for(let i=totals.length-1;i>=0;i--){ if(totals[i]<=21) return { total: totals[i], isSoft: totals[i]!==totals[0] }; }
+  return { total: totals[0], isSoft:false };
+}
+function displayTotals(cards){
+  const totals=allHandTotals(cards);
+  const under21=totals.filter(t=>t<=21);
+  if(under21.length>1) return `${under21[0]} / ${under21[under21.length-1]}`;
+  return `${under21[0] ?? totals[0]}`;
+}
+function isTenCard(rank){ return rank==='10'||rank==='J'||rank==='Q'||rank==='K'; }
+function isBlackjack(rawCards){
+  const cards=rawCards.map(normalizeCard);
+  if(cards.length!==2) return false;
+  const ranks=cards.map(c=>c.rank);
+  return (ranks.includes('A') && ranks.some(isTenCard));
+}
 let shoe=[], pen=0;
 function buildShoe(decks=6){ const cards=[]; for(let d=0;d<decks;d++){ for(const s of SUITS){ for(const r of RANKS){ cards.push({rank:r,suit:s}); } } }
   for(let i=cards.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cards[i],cards[j]]=[cards[j],cards[i]]; }
   shoe=cards; pen=Math.floor(cards.length*0.75); toast('Nouveau shoe 6 decks.'); }
 function drawCard(){ if(shoe.length<=pen) buildShoe(); return shoe.pop(); }
-function handValue(cards){ let total=0, aces=0; for(const c of cards){ if(c.rank==='A'){aces++; total+=11;} else if(['10','J','Q','K'].includes(c.rank)){ total+=10; } else total+=parseInt(c.rank,10); }
-  while(total>21 && aces>0){ total-=10; aces--; } const soft=(aces>0 && total<=21); const isBJ=(cards.length===2 && total===21); return {total,soft,isBJ}; }
+function handValue(cards){
+  const { total, isSoft } = bestHandTotal(cards);
+  return { total, soft:isSoft, isBJ: isBlackjack(cards) };
+}
 function cardAssetPath(rank, suit){
   const suitName = suit==='♠' ? 'spades' : suit==='♥' ? 'hearts' : suit==='♦' ? 'diamonds' : 'clubs';
   const rankName = (rank==='A')?'ace':(rank==='J')?'jack':(rank==='Q')?'queen':(rank==='K')?'king':rank.toLowerCase();
