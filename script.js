@@ -253,12 +253,30 @@ function updateActionsForActive(){
 function dealerPlayThenSettle(){
   flipHoleCard();
   setTimeout(()=>{
-    let dv=handValue(state.dealer);
+    const softFlag = (cards)=>{
+      // Compute sum with all aces as 1
+      let sum1=0, hasAce=false;
+      for(const c of cards){ const r=String(c.rank).toUpperCase(); if(r==='A'){ sum1+=1; hasAce=true; } else if(['10','J','Q','K'].includes(r)){ sum1+=10; } else sum1+=parseInt(r,10); }
+      const total = (hasAce && sum1<12) ? sum1+10 : sum1;
+      return { total, isSoft: hasAce && sum1<12 };
+    };
+    const shouldHit = (cards)=>{
+      try{
+        if(window.Blackjack && Blackjack.Utils && typeof Blackjack.Utils.score==='function'){
+          // Engine score (best total); derive softness similarly to its logic
+          let sum1=0, hasAce=false;
+          for(const c of cards){ const r=String(c.rank).toUpperCase(); if(r==='A'){ sum1+=1; hasAce=true; } else if(['10','J','Q','K'].includes(r)){ sum1+=10; } else sum1+=parseInt(r,10); }
+          const total = (hasAce && sum1<12) ? sum1+10 : sum1;
+          return total<17 || (total===17 && hasAce && sum1<12);
+        }
+      }catch(e){}
+      const v=handValue(cards); return v.total<17 || (v.total===17 && v.soft);
+    };
     const loop=()=>{
-      if(dv.total<17 || (dv.total===17 && dv.soft)){
+      if(shouldHit(state.dealer)){
         const row=document.querySelector("#dealerRow"); const host=document.createElement('div'); row.appendChild(host);
         const c=drawCard(); state.dealer.push(c);
-        createAndAnimateCard(host,c,true).then(()=>{ dv=handValue(state.dealer); setTimeout(loop, 220); });
+        createAndAnimateCard(host,c,true).then(()=>{ setTimeout(loop, 220); });
       } else { settlePayouts(); }
     };
     loop();
