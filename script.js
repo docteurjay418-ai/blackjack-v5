@@ -195,14 +195,14 @@ function animateChipsPath(fromRect, toRect, count=8){
 
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML=''; drow.style.position='relative';
-  state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.position='absolute'; host.style.left='0'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; host.style.transform=`rotate(${(-8 + i*4)}deg)`; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
+  state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.position='absolute'; host.style.left='50%'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; const dTotal=state.dealer.length; const spread=32, base=-10, step=6; const offset=(i - (dTotal-1)/2)*spread; host.style.transform=`translateX(${offset}px) rotate(${base + i*step}deg)`; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
   const dLabel = (state.inRound && !allPlayersDone())
     ? displayTotals([state.dealer[0]])
     : dealerLabel(state.dealer);
   document.querySelector("#dealerTotal").textContent = dLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
-    const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
-    h.cards.forEach((c,ci)=>{ const host=document.createElement('div'); host.style.position='absolute'; host.style.left='0'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; host.style.transform=`rotate(${(-8 + ci*4)}deg)`; host.style.zIndex=String(10+ci); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
+    const wrap=document.createElement('div'); wrap.style.display='inline-block'; wrap.style.position='relative'; wrap.style.marginRight='12px'; wrap.style.height='calc(104px + 1mm)'; wrap.style.width=(74 + Math.max(0,(h.cards.length-1))*32)+'px';
+    h.cards.forEach((c,ci)=>{ const host=document.createElement('div'); host.style.position='absolute'; host.style.left='50%'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; const spread=32, base=-10, step=6; const offset=(ci - (h.cards.length-1)/2)*spread; host.style.transform=`translateX(${offset}px) rotate(${base + ci*step}deg)`; host.style.zIndex=String(10+ci); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
     area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
     const bestNow = bestHandTotal(h.cards);
     if(RULES.blackjackLabelMode==='any21' && bestNow.total===21){
