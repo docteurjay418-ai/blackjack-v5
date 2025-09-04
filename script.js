@@ -107,13 +107,23 @@ function placePips(){ /* no-op: replaced by corner/center marks */ }
 function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._to); t._to=setTimeout(()=>t.style.display='none',ms); }
 
 // ============================== Deal sound =============================
-let dealSound;
+let dealSounds = [];
 try{
-  // Use provided OGG asset
-  dealSound = new Audio('assets/sounds/card-slide-6.ogg');
-  dealSound.volume = 0.35;
+  for(let i=1;i<=6;i++){
+    const a = new Audio(`assets/sounds/card-slide-${i}.ogg`);
+    a.volume = 0.35;
+    dealSounds.push(a);
+  }
 }catch(e){}
-function playDealSound(){ try{ if(dealSound){ dealSound.currentTime=0; dealSound.play().catch(()=>{}); } }catch(e){} }
+function playDealSound(){
+  try{
+    if(dealSounds.length){
+      const a = dealSounds[Math.floor(Math.random()*dealSounds.length)];
+      a.currentTime = 0;
+      a.play().catch(()=>{});
+    }
+  }catch(e){}
+}
 
 const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,awaitInsurance:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };
 class Hand{ constructor(bet){ this.bet=bet; this.cards=[]; this.done=false; this.surrender=false; this.doubled=false; this.insurance=0; this.isSplitAce=false; }}
