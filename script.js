@@ -26,7 +26,7 @@ function createCardEl(card, hidden=false){
 function placePips(){ /* no-op: replaced by corner/center marks */ }
 function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._to); t._to=setTimeout(()=>t.style.display='none',ms); }
 
-const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };
+const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,awaitInsurance:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };
 class Hand{ constructor(bet){ this.bet=bet; this.cards=[]; this.done=false; this.surrender=false; this.doubled=false; this.insurance=0; this.isSplitAce=false; }}
 
 function renderTop(){ $("#balance").textContent=money(state.balance); $("#totalBet").textContent=money(totalBet()); $("#winAmt").textContent=money(state.win); }
@@ -102,7 +102,22 @@ function setActionVisibility({hit,stand,double,split,surrender}){
   document.querySelector('#split').classList.toggle('hidden', !split);
   document.querySelector('#surrender').classList.toggle('hidden', !surrender);
 }
-function refreshControls(){ if(!state.inRound){ showBettingControls(true); setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false}); } else { showBettingControls(false); updateActionsForActive(); } }
+function refreshControls(){
+  if(!state.inRound){
+    showBettingControls(true);
+    setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false});
+    document.querySelectorAll('[data-group="ins"]').forEach(b=>b.classList.add('hidden'));
+  } else {
+    showBettingControls(false);
+    if(state.awaitInsurance){
+      setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false});
+      document.querySelectorAll('[data-group="ins"]').forEach(b=>b.classList.remove('hidden'));
+    } else {
+      document.querySelectorAll('[data-group="ins"]').forEach(b=>b.classList.add('hidden'));
+      updateActionsForActive();
+    }
+  }
+}
 
 function allPlayersDone(){
   for(let s=0;s<3;s++){
@@ -138,14 +153,16 @@ async function startRound(){
     if(step.dealer){ const row=document.querySelector("#dealerRow"); const slot=document.createElement('div'); row.appendChild(slot); const card = step.hide ? state.dealer[1] : state.dealer[0]; await createAndAnimateCard(slot, card, !step.hide); }
     else{ const s=step.seat; const h=state.hands[s][0]; const newc=drawCard(); h.cards.push(newc); const area=document.querySelector(`.seat[data-idx="${s}"] .hand-area`); const slot=document.createElement('div'); area.appendChild(slot); await createAndAnimateCard(slot, newc, true); }
   }
-  renderAllHands(); renderTop(); renderStats(); refreshControls();
+  renderAllHands(); renderTop(); renderStats();
+  offerInsuranceIfEligible();
+  refreshControls();
 }
 
 function currentHand(){ return (state.hands[state.activeSeat]||[])[state.activeHand]; }
 function moveToNextHand(){ for(let s=state.activeSeat;s<3;s++){ const hands=state.hands[s]||[]; for(let i=(s===state.activeSeat?state.activeHand+1:0); i<hands.length; i++){ if(!hands[i].done){ state.activeSeat=s; state.activeHand=i; return true; } } } return false; }
 
 function updateActionsForActive(){
-  if(!state.inRound){ setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false}); return; }
+  if(!state.inRound || state.awaitInsurance){ setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false}); return; }
   const h=currentHand(); if(!h){ setActionVisibility({hit:false,stand:false,double:false,split:false,surrender:false}); return; }
   const v=handValue(h.cards);
   const canHit = v.total<21 && !(h.isSplitAce && h.cards.length>=2);
@@ -202,6 +219,32 @@ document.querySelector('#deal').addEventListener('click', startRound);
 document.querySelector('#clearBets').addEventListener('click',()=>{ if(state.inRound) return; clearBets(); });
 document.querySelector('#rebet').addEventListener('click',()=>{ if(state.inRound) return; rebet(); });
 document.querySelector('#shuffle').addEventListener('click', buildShoe);
+
+// Insurance flow
+function offerInsuranceIfEligible(){
+  const up = state.dealer[0];
+  const anyBet = state.bets.some(v=>v>0);
+  if(up && up.rank==='A' && anyBet){ state.awaitInsurance=true; toast('Insurance available (2:1)'); }
+}
+function totalInsurancePotential(){
+  let need=0; for(let s=0;s<3;s++){ const h=(state.hands[s]||[])[0]; if(h) need += h.bet/2; } return need;
+}
+function buyInsurance(){
+  let spent=0; for(let s=0;s<3;s++){ const h=(state.hands[s]||[])[0]; if(!h) continue; const max=h.bet/2; if(state.balance>=max){ h.insurance=max; state.balance-=max; spent+=max; } }
+  if(spent>0){ toast('Insurance placed'); renderTop(); }
+}
+function resolveInsuranceAfterPeek(){
+  const dv=handValue(state.dealer);
+  if(state.hands.flat().some(h=>h.insurance>0)){
+    if(dv.isBJ){ let pay=0; for(const seat of state.hands){ for(const h of seat){ if(h.insurance){ pay += h.insurance*2; h.insurance=0; } } } state.balance += pay; renderTop(); toast('Insurance wins (2:1)'); }
+    else { for(const seat of state.hands){ for(const h of seat){ if(h.insurance){ h.insurance=0; } } } toast('Insurance loses'); }
+  }
+  if(dv.isBJ){ flipHoleCard(); settlePayouts(); state.awaitInsurance=false; refreshControls(); return; }
+  state.awaitInsurance=false; refreshControls();
+}
+
+document.querySelector('#insurance').addEventListener('click', ()=>{ if(!state.awaitInsurance) return; buyInsurance(); resolveInsuranceAfterPeek(); });
+document.querySelector('#noInsurance').addEventListener('click', ()=>{ if(!state.awaitInsurance) return; resolveInsuranceAfterPeek(); });
 
 document.querySelector('#hit').addEventListener('click',async()=>{
   const h=currentHand(); if(!h) return; const v0=handValue(h.cards); if(v0.total>=21) return;
