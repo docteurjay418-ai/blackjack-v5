@@ -387,7 +387,7 @@ function settlePayouts(){
   setTimeout(()=>{
     state.hands=[[],[],[]]; state.dealer=[]; state.win=0; state.bets=[0,0,0]; state.lastBets=[0,0,0];
     renderAllHands(); refreshBetsUI(); renderTop();
-  }, 2000);
+  }, 5000);
 }
 
 
