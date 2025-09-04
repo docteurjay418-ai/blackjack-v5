@@ -60,6 +60,25 @@ function isBlackjack(rawCards){
   const ranks=cards.map(c=>c.rank);
   return (ranks.includes('A') && ranks.some(isTenCard));
 }
+function isNaturalBlackjack(cards){
+  const arr = cards.map(normalizeCard);
+  if(arr.length!==2) return false;
+  const r=arr.map(c=>c.rank);
+  return (r.includes('A') && r.some(isTenCard));
+}
+
+// ============================== Calculs / Labels =============================
+function playerLabel(cards){
+  const totals=allHandTotals(cards);
+  const under=totals.filter(t=>t<=21);
+  if(cards.length<=2){
+    if(under.length>1) return `${under[0]} / ${under[under.length-1]}`;
+    return `${under[0] ?? totals[0]}`;
+  }
+  if(under.length>0) return String(under[under.length-1]);
+  return String(totals[0]);
+}
+function dealerLabel(cards){ const { total } = bestHandTotal(cards); return String(total); }
 let shoe=[], pen=0;
 function buildShoe(decks=6){ const cards=[]; for(let d=0;d<decks;d++){ for(const s of SUITS){ for(const r of RANKS){ cards.push({rank:r,suit:s}); } } }
   for(let i=cards.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cards[i],cards[j]]=[cards[j],cards[i]]; }
@@ -147,27 +166,13 @@ function animateChipsPath(fromRect, toRect, count=8){
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML='';
   state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
-  let dealerLabel = (state.inRound && !allPlayersDone()) ? '—' : displayTotals(state.dealer);
-  if(!(state.inRound && !allPlayersDone())){
-    const dealerBest = bestHandTotal(state.dealer);
-    const dealerNat = isBlackjack(state.dealer);
-    if(RULES.blackjackLabelMode==='natural'){
-      if(dealerNat) dealerLabel = 'BLACKJACK!';
-    } else {
-      if(dealerBest.total===21) dealerLabel = 'BLACKJACK!';
-    }
-  }
-  document.querySelector("#dealerTotal").textContent = dealerLabel;
+  const dLabel = (state.inRound && !allPlayersDone()) ? '—' : dealerLabel(state.dealer);
+  document.querySelector("#dealerTotal").textContent = dLabel;
   document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
     h.cards.forEach(c=>{ const host=document.createElement('div'); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
     area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
-    const best = bestHandTotal(h.cards); const nat = isBlackjack(h.cards);
-    if(RULES.blackjackLabelMode==='natural'){
-      totalEl.textContent = nat ? 'BLACKJACK!' : displayTotals(h.cards);
-    } else {
-      totalEl.textContent = best.total===21 ? 'BLACKJACK!' : displayTotals(h.cards);
-    }
+    totalEl.textContent = playerLabel(h.cards);
     if(i===state.activeSeat && hi===state.activeHand && state.inRound && !h.done){ totalEl.style.outline='3px solid rgba(255,255,255,.45)'; } else totalEl.style.outline='none'; }); });
 }
 
@@ -392,3 +397,21 @@ document.addEventListener('keydown',e=>{ const k=e.key.toLowerCase();
 
 function init(){ buildShoe(); refreshBetsUI(); renderTop(); renderStats(); refreshControls(); }
 init();
+
+
+// ============================== Hooks UI Blackjack =============================
+function updatePlayerUI({ cards, outcome }){
+  const best = bestHandTotal(cards);
+  let showBlackjack=false;
+  if(RULES.blackjackLabelMode==='natural'){
+    showBlackjack = isNaturalBlackjack(cards) && (outcome ? outcome!=='dealerWin' : true);
+  } else if(RULES.blackjackLabelMode==='any21'){
+    showBlackjack = (best.total===21) && (outcome ? (outcome==='playerWin'||outcome==='push') : true);
+  }
+  const el=document.querySelector('#playerTotal');
+  if(!el) return; el.textContent = showBlackjack ? 'BLACKJACK!' : playerLabel(cards);
+}
+function updateDealerUI({ cards }){ const el=document.querySelector('#dealerTotal'); if(!el) return; el.textContent = dealerLabel(cards); }
+async function onPlayerHit(drawCardAsync){ await drawCardAsync('player'); const hand=currentHand().cards; const { total }=bestHandTotal(hand); updatePlayerUI({cards:hand}); if(total>21){ roundEnd({ outcome:'playerBust' }); }}
+function roundEnd({ outcome }){ const p=currentHand().cards; const d=state.dealer; updatePlayerUI({cards:p, outcome}); updateDealerUI({cards:d}); }
+async function dealerDrawLoop(drawCardAsync){ while(true){ const {total,isSoft}=bestHandTotal(state.dealer); if(!(total<17 || (total===17 && isSoft))) break; await drawCardAsync('dealer'); updateDealerUI({cards:state.dealer}); } }
