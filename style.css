@@ -88,7 +88,6 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
   text-shadow: 0 1px 2px rgba(0,0,0,.4);
 }
 .card.back, .card .backface{ border-color:#0f2d39 }
-.backface{ position:absolute; inset:0; transform:rotateY(180deg); backface-visibility:hidden; background: url('assets/playing-cards-assets/png/back.png') center/cover no-repeat }
 .flip{ transition: transform .45s cubic-bezier(.2,.7,.2,1) }
 .flipped{ transform: rotateY(180deg) }
 #shoeOrigin{ position:absolute; right:60px; bottom:90px; width:72px; height:30px; border-radius:8px; background:linear-gradient(#8b6b3f,#6e512e); box-shadow:0 12px 22px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.15) }
