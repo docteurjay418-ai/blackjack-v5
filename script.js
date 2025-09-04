@@ -297,11 +297,12 @@ function dealerPlayThenSettle(){
       }catch(e){}
       const v=handValue(cards); return v.total<17 || (v.total===17 && v.soft);
     };
+    updateDealerUI({cards: state.dealer});
     const loop=()=>{
       if(shouldHit(state.dealer)){
         const row=document.querySelector("#dealerRow"); const host=document.createElement('div'); row.appendChild(host);
         const c=drawCard(); state.dealer.push(c);
-        createAndAnimateCard(host,c,true).then(()=>{ setTimeout(loop, 220); });
+        createAndAnimateCard(host,c,true).then(()=>{ updateDealerUI({cards: state.dealer}); setTimeout(loop, 220); });
       } else { settlePayouts(); }
     };
     loop();
@@ -313,24 +314,41 @@ function dealerRect(){ return document.querySelector("#dealerBank").getBoundingC
 
 function settlePayouts(){
   const dRect=dealerRect(); let win=0;
+  const outcomes=[[],[],[]];
   for(let s=0;s<3;s++){
     for(const h of (state.hands[s]||[])){
       const pv=handValue(h.cards); const dv=handValue(state.dealer); let out=0;
-      if(h.surrender){ out=-h.bet/2; animateChipsPath(seatRect(s), dRect, 8); state.stats.lost++; }
-      else if(pv.total>21){ out=-h.bet; animateChipsPath(seatRect(s), dRect, 10); state.stats.lost++; }
+      if(h.surrender){ out=-h.bet/2; animateChipsPath(seatRect(s), dRect, 8); state.stats.lost++; outcomes[s].push('surrender'); }
+      else if(pv.total>21){ out=-h.bet; animateChipsPath(seatRect(s), dRect, 10); state.stats.lost++; outcomes[s].push('playerBust'); }
       else{
         const dealerBJ=dv.isBJ; const bj=(pv.isBJ && h.cards.length===2 && !h.doubled && !h.surrender);
-        if(dv.total>21){ out=h.bet; if(bj) out=h.bet*1.5; animateChipsPath(dRect, seatRect(s), 12); state.stats.won++; }
-        else if(bj && !dealerBJ){ out=h.bet*1.5; animateChipsPath(dRect, seatRect(s), 14); state.stats.won++; }
-        else if(!bj && dealerBJ){ out=-h.bet; animateChipsPath(seatRect(s), dRect, 10); state.stats.lost++; }
-        else if(pv.total>dv.total){ out=h.bet; animateChipsPath(dRect, seatRect(s), 12); state.stats.won++; }
-        else if(pv.total<dv.total){ out=-h.bet; animateChipsPath(seatRect(s), dRect, 10); state.stats.lost++; }
-        else { out=0; state.stats.push++; }
+        if(dv.total>21){ out=h.bet; if(bj) out=h.bet*1.5; animateChipsPath(dRect, seatRect(s), 12); state.stats.won++; outcomes[s].push('dealerBust'); }
+        else if(bj && !dealerBJ){ out=h.bet*1.5; animateChipsPath(dRect, seatRect(s), 14); state.stats.won++; outcomes[s].push('playerWin'); }
+        else if(!bj && dealerBJ){ out=-h.bet; animateChipsPath(seatRect(s), dRect, 10); state.stats.lost++; outcomes[s].push('dealerBlackjack'); }
+        else if(pv.total>dv.total){ out=h.bet; animateChipsPath(dRect, seatRect(s), 12); state.stats.won++; outcomes[s].push('playerWin'); }
+        else if(pv.total<dv.total){ out=-h.bet; animateChipsPath(seatRect(s), dRect, 10); state.stats.lost++; outcomes[s].push('dealerWin'); }
+        else { out=0; state.stats.push++; outcomes[s].push('push'); }
       }
       state.balance += out + h.bet; win += out;
     }
   }
-  state.win=win; renderTop(); renderStats(); toast(win>=0?`Tu gagnes ${money(win)}`:`Tu perds ${money(-win)}`,1800);
+  state.win=win; renderTop(); renderStats();
+  // Refresh labels, then optionally override with BLACKJACK! per RULES
+  renderAllHands();
+  for(let s=0;s<3;s++){
+    const hands=state.hands[s]||[];
+    hands.forEach((h,hi)=>{
+      const area=document.querySelector(`.seat[data-idx="${s}"] .hand-area`);
+      const totalEl=area && area.querySelector('.total-tag');
+      if(!totalEl) return;
+      const best=bestHandTotal(h.cards); const nat=isNaturalBlackjack(h.cards); const outcome=outcomes[s][hi];
+      let showBJ=false;
+      if(RULES.blackjackLabelMode==='natural') showBJ = nat && outcome!=='dealerWin';
+      else if(RULES.blackjackLabelMode==='any21') showBJ = (best.total===21) && (outcome==='playerWin' || outcome==='push');
+      if(showBJ) totalEl.textContent='BLACKJACK!';
+    });
+  }
+  toast(win>=0?`Tu gagnes ${money(win)}`:`Tu perds ${money(-win)}`,1800);
   state.inRound=false; refreshControls();
 }
 
