@@ -32,8 +32,9 @@ function createCardEl(card, hidden=false){
         const s=targetPx/h; node.style.transformOrigin='50% 50%'; node.style.transform = baseTransform + ` scale(${s})`;
       }catch{}
     };
-    normalize(center, 'translate(-50%, -50%)', 60);
-    normalize(corner, '', 26);
+    // Slightly larger overall sizes
+    normalize(center, 'translate(-50%, -50%)', 66);
+    normalize(corner, '', 28);
   });
   return wrap;
 }
