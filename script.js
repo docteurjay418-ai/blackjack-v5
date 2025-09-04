@@ -177,9 +177,9 @@ function createAndAnimateCard(toEl, card, faceUp=true){ const temp=createCardEl(
   const tx=end.left+end.width/2, ty=end.top+end.height/2;
   const startY = -120; // start from top of screen
   const startX = (window.innerWidth/2)|0; // center-top horizontally
-  temp.style.position='fixed'; temp.style.left=(startX-37)+'px'; temp.style.top=startY+'px'; temp.style.transition='transform .42s cubic-bezier(.2,.8,.2,1), opacity .42s'; temp.style.opacity='0.95';
+  temp.style.position='fixed'; temp.style.left=(startX-37)+'px'; temp.style.top=startY+'px'; temp.style.transition='transform .42s cubic-bezier(.2,.8,.2,1), opacity .42s, filter .32s ease-out'; temp.style.opacity='0.95'; temp.style.filter='drop-shadow(0 22px 28px rgba(0,0,0,0.55))';
   playDealSound();
-  requestAnimationFrame(()=>{ temp.style.transform=`translate(${tx-startX}px, ${ty-startY}px) rotate(${Math.floor(Math.random()*9-4)}deg)`; });
+  requestAnimationFrame(()=>{ temp.style.transform=`translate(${tx-startX}px, ${ty-startY}px) rotate(${Math.floor(Math.random()*9-4)}deg)`; temp.style.filter='drop-shadow(0 8px 14px rgba(0,0,0,0.38))'; });
   return new Promise(res=>{ temp.addEventListener('transitionend', ()=>{ const real=createCardEl(card,!faceUp); toEl.appendChild(real); if(faceUp){ setTimeout(()=>{ real.querySelector('.card').classList.remove('flipped'); }, 20); } temp.remove(); res(); }, {once:true}); });
 }
 function flipHoleCard(){ const row=document.querySelector("#dealerRow"); const last=row.children[1]; if(!last) return; last.querySelector('.card').classList.remove('flipped'); }
