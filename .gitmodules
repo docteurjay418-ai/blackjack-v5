@@ -1,3 +1,6 @@
 [submodule "Artificial-Intelligence-in-BlackJack-Card-Counting"]
 	path = Artificial-Intelligence-in-BlackJack-Card-Counting
 	url = https://github.com/justinbodnar/Artificial-Intelligence-in-BlackJack-Card-Counting.git
+[submodule "assets/playing-cards-assets"]
+	path = assets/playing-cards-assets
+	url = https://github.com/hayeah/playing-cards-assets.git
