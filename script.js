@@ -110,7 +110,7 @@ function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.dis
 let dealSounds = [];
 try{
   for(let i=1;i<=6;i++){
-    const a = new Audio(`assets/sounds/card-slide-${i}.ogg`);
+    const a = new Audio(`assets/Sounds/card-slide-${i}.ogg`);
     a.volume = 0.35;
     dealSounds.push(a);
   }
