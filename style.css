@@ -44,26 +44,11 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .center-mark{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; display:flex; flex-direction:column; align-items:center; gap:0; line-height:1 }
 .center-rank{ font:900 30px/1 Georgia, serif; letter-spacing:.4px; margin:0 0 -2px 0; padding:0 }
 .center-suit{ font:900 38px/1 Georgia, serif; margin:0; padding:0 }
-.front{ background:
-  radial-gradient(160% 100% at 20% 10%, rgba(0,0,0,.06), transparent 26%),
-  radial-gradient(180% 120% at 80% 90%, rgba(0,0,0,.08), transparent 30%),
-  var(--paper);
-}
+.front{ background: var(--paper); }
+.front img.face-img{ width:100%; height:100%; object-fit:contain; display:block }
 .card .front, .card .backface{ border-radius:12px }
-.card.back, .card .backface{ background:
-  linear-gradient(180deg, rgba(255,255,255,.06), transparent 24%),
-  repeating-linear-gradient(45deg, #165064 0 10px, #0e3a49 10px 20px);
-  border-color:#0f2d39 }
-.backface{ position:absolute; inset:0; transform:rotateY(180deg); backface-visibility:hidden }
-.backface::before{ content:'♠'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:50px; height:50px; border-radius:999px;
-  display:grid; place-items:center; color:#ffedb8; font:900 26px/1 Georgia, serif; letter-spacing:1px;
-  background:
-    radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.2), transparent 40%),
-    radial-gradient(120% 140% at 70% 80%, rgba(0,0,0,.35), transparent 50%),
-    #143a49;
-  box-shadow: 0 8px 18px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -4px 10px rgba(0,0,0,.35);
-  outline: 3px solid #11323f; border:2px solid #e6d38b; }
-.backface::after{ content:"CLASSIC BLACKJACK"; position:absolute; left:50%; top:calc(50% + 40px); transform:translateX(-50%); font:700 10px/1 system-ui, sans-serif; color:rgba(255,255,255,.85); letter-spacing:1.8px }
+.card.back, .card .backface{ border-color:#0f2d39 }
+.backface{ position:absolute; inset:0; transform:rotateY(180deg); backface-visibility:hidden; background: url('assets/playing-cards-assets/png/back.png') center/cover no-repeat }
 .flip{ transition: transform .45s cubic-bezier(.2,.7,.2,1) }
 .flipped{ transform: rotateY(180deg) }
 #shoeOrigin{ position:absolute; right:60px; bottom:90px; width:72px; height:30px; border-radius:8px; background:linear-gradient(#8b6b3f,#6e512e); box-shadow:0 12px 22px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.15) }

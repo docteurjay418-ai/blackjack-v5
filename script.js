@@ -8,34 +8,18 @@ function buildShoe(decks=6){ const cards=[]; for(let d=0;d<decks;d++){ for(const
 function drawCard(){ if(shoe.length<=pen) buildShoe(); return shoe.pop(); }
 function handValue(cards){ let total=0, aces=0; for(const c of cards){ if(c.rank==='A'){aces++; total+=11;} else if(['10','J','Q','K'].includes(c.rank)){ total+=10; } else total+=parseInt(c.rank,10); }
   while(total>21 && aces>0){ total-=10; aces--; } const soft=(aces>0 && total<=21); const isBJ=(cards.length===2 && total===21); return {total,soft,isBJ}; }
+function cardAssetPath(rank, suit){
+  const suitName = suit==='♠' ? 'spades' : suit==='♥' ? 'hearts' : suit==='♦' ? 'diamonds' : 'clubs';
+  const rankName = (rank==='A')?'ace':(rank==='J')?'jack':(rank==='Q')?'queen':(rank==='K')?'king':rank.toLowerCase();
+  return `assets/playing-cards-assets/svg-cards/${rankName}_of_${suitName}.svg`;
+}
 function createCardEl(card, hidden=false){
   const wrap=document.createElement('div'); wrap.className='card-wrap';
   const el=document.createElement('div'); el.className='card flip'+(hidden?' flipped':'');
-  if(COLOR(card.suit)==='red') el.classList.add('red');
   const front=document.createElement('div'); front.className='front'; front.style.position='absolute'; front.style.inset='0'; front.style.borderRadius='12px'; front.style.backfaceVisibility='hidden';
-  const corner=document.createElement('div'); corner.className='corner-block';
-  const cr=document.createElement('div'); cr.className='corner-rank'; cr.textContent=card.rank; corner.appendChild(cr);
-  const cs=document.createElement('div'); cs.className='corner-suit'; cs.textContent=card.suit; corner.appendChild(cs);
-  front.appendChild(corner);
-
-  const center=document.createElement('div'); center.className='center-mark';
-  const mr=document.createElement('div'); mr.className='center-rank'; mr.textContent=card.rank; center.appendChild(mr);
-  const ms=document.createElement('div'); ms.className='center-suit'; ms.textContent=card.suit; center.appendChild(ms);
-  front.appendChild(center);
-
+  const img=document.createElement('img'); img.className='face-img'; img.alt=`${card.rank} ${card.suit}`; img.src=cardAssetPath(card.rank, card.suit); front.appendChild(img);
   const back=document.createElement('div'); back.className='backface';
   el.appendChild(front); el.appendChild(back); wrap.appendChild(el);
-  requestAnimationFrame(()=>{
-    const normalize=(node, baseTransform, targetPx)=>{
-      try{
-        const h=node.getBoundingClientRect().height||0; if(h<=0) return;
-        const s=targetPx/h; node.style.transformOrigin='50% 50%'; node.style.transform = baseTransform + ` scale(${s})`;
-      }catch{}
-    };
-    // Slightly larger overall sizes
-    normalize(center, 'translate(-50%, -50%)', 66);
-    normalize(corner, '', 28);
-  });
   return wrap;
 }
 // Fidelity pip layout approximating standard casino decks
