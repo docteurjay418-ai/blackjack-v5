@@ -172,7 +172,12 @@ function renderAllHands(){
     const wrap=document.createElement('div'); wrap.style.display='inline-flex'; wrap.style.marginRight='12px';
     h.cards.forEach(c=>{ const host=document.createElement('div'); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
     area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
-    totalEl.textContent = playerLabel(h.cards);
+    const bestNow = bestHandTotal(h.cards);
+    if(RULES.blackjackLabelMode==='any21' && bestNow.total===21){
+      totalEl.textContent = 'BLACKJACK!';
+    } else {
+      totalEl.textContent = playerLabel(h.cards);
+    }
     if(i===state.activeSeat && hi===state.activeHand && state.inRound && !h.done){ totalEl.style.outline='3px solid rgba(255,255,255,.45)'; } else totalEl.style.outline='none'; }); });
 }
 
