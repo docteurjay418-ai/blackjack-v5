@@ -15,15 +15,26 @@ function createCardEl(card, hidden=false){ const wrap=document.createElement('di
   const br=tl.cloneNode(true); br.classList.add('br'); front.appendChild(tl); front.appendChild(br);
   placePips(front,card.rank,card.suit);
   const back=document.createElement('div'); back.className='backface'; el.appendChild(front); el.appendChild(back); wrap.appendChild(el); return wrap; }
-const PIP_POS={ top:[{x:50,y:16}], mid:[{x:50,y:50}], bot:[{x:50,y:84}], quads:[{x:30,y:28},{x:70,y:28},{x:30,y:72},{x:70,y:72}], six:[{x:30,y:22},{x:70,y:22},{x:30,y:50},{x:70,y:50},{x:30,y:78},{x:70,y:78}],
-  seven:[{x:50,y:14},{x:30,y:26},{x:70,y:26},{x:30,y:50},{x:70,y:50},{x:30,y:74},{x:70,y:74}], eight:[{x:30,y:22},{x:70,y:22},{x:30,y:38},{x:70,y:38},{x:30,y:62},{x:70,y:62},{x:30,y:78},{x:70,y:78}],
-  nine:[{x:50,y:14},{x:30,y:26},{x:70,y:26},{x:30,y:42},{x:70,y:42},{x:50,y:50},{x:30,y:66},{x:70,y:66},{x:50,y:84}],
-  ten:[{x:30,y:18},{x:70,y:18},{x:30,y:34},{x:70,y:34},{x:30,y:50},{x:70,y:50},{x:30,y:66},{x:70,y:66},{x:30,y:82},{x:70,y:82}] };
-function placePips(container,rank,suit){ const add=pts=>pts.forEach(p=>{ const pip=document.createElement('div'); pip.className='pip'; pip.textContent=suit; pip.style.left=p.x+'%'; pip.style.top=p.y+'%'; pip.style.position='absolute'; pip.style.transform='translate(-50%,-50%)'; container.appendChild(pip); });
-  switch(rank){ case 'A': add(PIP_POS.mid); break; case '2': add([PIP_POS.top[0],PIP_POS.bot[0]]); break; case '3': add([PIP_POS.top[0],PIP_POS.mid[0],PIP_POS.bot[0]]); break;
-  case '4': add(PIP_POS.quads); break; case '5': add([...PIP_POS.quads,PIP_POS.mid[0]]); break; case '6': add(PIP_POS.six); break; case '7': add(PIP_POS.seven); break;
-  case '8': add(PIP_POS.eight); break; case '9': add(PIP_POS.nine); break; case '10': add(PIP_POS.ten); break;
-  case 'J': case 'Q': case 'K': const face=document.createElement('div'); face.className='face'; face.textContent=suit; container.appendChild(face); break; } }
+// Fidelity pip layout approximating standard casino decks
+function placePips(container,rank,suit){
+  const add = (x,y)=>{ const pip=document.createElement('div'); pip.className='pip'; pip.textContent=suit; pip.style.left=x+'%'; pip.style.top=y+'%'; pip.style.position='absolute'; pip.style.transform='translate(-50%,-50%)'; container.appendChild(pip); };
+  const pair = y=>{ add(30,y); add(70,y); };
+  // Row Y positions tuned to avoid corners and borders
+  const Y={ t1:20, t2:32, mid:50, b2:68, b1:80 };
+  switch(rank){
+    case 'A': add(50,Y.mid); break;
+    case '2': add(50,Y.t2); add(50,Y.b2); break;
+    case '3': add(50,Y.t2); add(50,Y.mid); add(50,Y.b2); break;
+    case '4': pair(Y.t2); pair(Y.b2); break;
+    case '5': pair(Y.t2); add(50,Y.mid); pair(Y.b2); break;
+    case '6': pair(24); pair(Y.mid); pair(76); break;
+    case '7': pair(24); pair(Y.mid); pair(76); add(50,Y.t1); break;
+    case '8': pair(24); pair(Y.mid); pair(76); add(50,Y.t1); add(50,Y.b1); break;
+    case '9': pair(24); pair(Y.mid); pair(76); add(50,Y.t1); add(50,Y.b1); add(50,Y.mid); break;
+    case '10': pair(Y.t1); pair(Y.t2); pair(Y.mid); pair(Y.b2); pair(Y.b1); break;
+    case 'J': case 'Q': case 'K': { const face=document.createElement('div'); face.className='face'; face.textContent=suit; container.appendChild(face); break; }
+  }
+}
 function toast(msg,ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._to); t._to=setTimeout(()=>t.style.display='none',ms); }
 
 const state={ balance:5000,lastBets:[0,0,0],bets:[0,0,0],hands:[[],[],[]],dealer:[],activeSeat:0,activeHand:0,inRound:false,stats:{hands:0,won:0,lost:0,push:0},win:0 };
