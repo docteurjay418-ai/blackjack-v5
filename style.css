@@ -1,4 +1,4 @@
-:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); --chip-size:64px; --paper:#fdfdfc; }
+:root{ --felt:#0f7f8f; --felt-d:#0a5e6f; --gold:#ffd973; --chip-edge:#f1f1f1; --shadow:rgba(0,0,0,.45); --chip-size:64px; --paper:#fdfdfc; --anim-fast:140ms; --anim-med:420ms; --ease:cubic-bezier(.22,.61,.36,1); }
 *{box-sizing:border-box} html,body{height:100%}
 body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; overflow:hidden; user-select:none }
 .topbar{ position:fixed; inset:0 0 auto 0; height:56px; display:flex; gap:28px; align-items:center; padding:0 18px; background:linear-gradient(#0b1a22,#0a1820); border-bottom:1px solid #0d2a34; z-index:1000 }
@@ -164,6 +164,10 @@ button:hover{ filter:brightness(1.08) } .hidden{ display:none !important }
   background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.5), rgba(255,255,255,.15) 40%, rgba(0,0,0,.5));
   offset-rotate: 0deg; animation: fly 650ms cubic-bezier(.23,.85,.25,1) forwards; }
 @keyframes fly { to { offset-distance: 100%; opacity:.2; } }
+
+/* Dealing slide animation for cards (motion path) */
+.card-motion{ position:fixed; offset-rotate:auto; animation: dealSlide var(--anim-med) var(--ease) forwards; will-change: offset-distance, filter }
+@keyframes dealSlide { from { offset-distance: 0%; filter: drop-shadow(0 22px 28px rgba(0,0,0,.55)); opacity:.98 } to { offset-distance: 100%; filter: drop-shadow(0 8px 14px rgba(0,0,0,.38)); opacity:1 } }
 
 /* Floating total pill centered over card piles */
 .pile-pill{

@@ -187,15 +187,32 @@ function refreshBetsUI(){ for(let i=0;i<3;i++) renderSeatStack(i); renderTop(); 
 function clearBets(){ state.bets=[0,0,0]; refreshBetsUI(); playChipSound(); }
 function rebet(){ state.bets=[...state.lastBets]; refreshBetsUI(); playChipSound(); }
 
-function createAndAnimateCard(toEl, card, faceUp=true){ const temp=createCardEl(card,true); document.body.appendChild(temp);
+function createAndAnimateCard(toEl, card, faceUp=true){
+  const temp=createCardEl(card,true); document.body.appendChild(temp);
   const end=toEl.getBoundingClientRect();
-  const tx=end.left+end.width/2, ty=end.top+end.height/2;
-  const startY = -120; // start from top of screen
-  const startX = (window.innerWidth/2)|0; // center-top horizontally
-  temp.style.position='fixed'; temp.style.left=(startX-37)+'px'; temp.style.top=startY+'px'; temp.style.transition='transform .42s cubic-bezier(.2,.8,.2,1), opacity .42s, filter .32s ease-out'; temp.style.opacity='0.95'; temp.style.filter='drop-shadow(0 22px 28px rgba(0,0,0,0.55))';
+  const table=document.getElementById('table')||document.querySelector('.table')||document.body;
+  const T=table.getBoundingClientRect();
+  // Start at the exact center of the top border of the table
+  const sx = Math.round(T.left + T.width/2);
+  const sy = Math.round(T.top - 8);
+  const tx = Math.round(end.left + end.width/2);
+  const ty = Math.round(end.top + end.height/2);
+  // Build a soft arc along the felt
+  const path = pathArc(sx, sy, tx, ty, 0.28);
+  temp.style.position='fixed';
+  temp.classList.add('card-motion');
+  temp.style.offsetPath = `path('${path}')`;
+  temp.style.offsetDistance = '0%';
+  temp.style.opacity = '0.98';
   playDealSound();
-  requestAnimationFrame(()=>{ temp.style.transform=`translate(${tx-startX}px, ${ty-startY}px) rotate(${Math.floor(Math.random()*9-4)}deg)`; temp.style.filter='drop-shadow(0 8px 14px rgba(0,0,0,0.38))'; });
-  return new Promise(res=>{ temp.addEventListener('transitionend', ()=>{ const real=createCardEl(card,!faceUp); toEl.appendChild(real); if(faceUp){ setTimeout(()=>{ real.querySelector('.card').classList.remove('flipped'); }, 20); } temp.remove(); res(); }, {once:true}); });
+  return new Promise(res=>{
+    // When the motion animation ends, mount the real card in the target host
+    temp.addEventListener('animationend', ()=>{
+      const real=createCardEl(card,!faceUp); toEl.appendChild(real);
+      if(faceUp){ setTimeout(()=>{ real.querySelector('.card').classList.remove('flipped'); }, 20); }
+      temp.remove(); res();
+    }, {once:true});
+  });
 }
 function flipHoleCard(){ const row=document.querySelector("#dealerRow"); const last=row.children[1]; if(!last) return; last.querySelector('.card').classList.remove('flipped'); }
 
