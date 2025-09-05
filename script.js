@@ -178,7 +178,7 @@ function createFanHost(parent, idx, total){
   host.style.position='absolute'; host.style.left='50%'; host.style.bottom='0';
   host.style.transformOrigin='bottom center';
   const rel = (total<=1)?0:(idx/(total-1)-0.5);
-  const x = rel * FAN_SPREAD; const y = Math.abs(rel) * -14; const angle = rel * FAN_MAX_ANGLE;
+  const x = rel * FAN_SPREAD; const y = 0; const angle = rel * FAN_MAX_ANGLE;
   host.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
   host.style.zIndex = String(100+idx); parent.appendChild(host); return host;
 }
