@@ -227,6 +227,8 @@ function animateChipsPath(fromRect, toRect, count=8){
 
 function renderAllHands(){
   const drow=document.querySelector("#dealerRow"); drow.innerHTML=''; drow.style.position='relative';
+  // Lower dealer cards slightly for better visual separation
+  drow.style.transform = 'translateY(8px)';
   state.dealer.forEach((c,i)=>{ const hide=state.inRound && i===1 && !allPlayersDone(); const host=document.createElement('div'); host.style.position='absolute'; host.style.left='50%'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; host.style.transform=`rotate(${(i - (state.dealer.length-1)/2)*12}deg)`; host.style.zIndex=String(10+i); drow.appendChild(host); const el=createCardEl(c, hide); host.appendChild(el); if(!hide) setTimeout(()=> el.querySelector('.card').classList.remove('flipped'), 0); });
   const dLabel = (state.inRound && !allPlayersDone())
     ? displayTotals([state.dealer[0]])
