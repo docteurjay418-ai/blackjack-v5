@@ -36,6 +36,8 @@ body{ margin:0; background:#0b1b23; color:#fff; font:14px/1.35 Inter,system-ui,S
 .dealer{ position:absolute; top:90px; left:50%; transform:translateX(-50%); text-align:center }
 .dealer .row{ display:flex; justify-content:center; gap:12px; margin-top:10px } .dealer .label{ font-weight:900; letter-spacing:.6px; opacity:.95 }
 .dealer .total{ margin-top:6px; display:inline-block; background:rgba(0,0,0,.45); padding:4px 8px; border-radius:8px; font-weight:900 }
+/* Hide legacy dealer total chip since we now use floating pills */
+.dealer .total{ display:none }
 .card-wrap{ perspective: 800px }
 .card{ width:74px; height:calc(104px + 1mm); border-radius:10px; color:#111; border:2px solid #e7e7e7; box-shadow:0 10px 18px var(--shadow); position:relative; transform-style:preserve-3d; backface-visibility:hidden; overflow:hidden }
 .card::after{ content:""; position:absolute; inset:0; pointer-events:none; border-radius:10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 6px rgba(0,0,0,.25); }
@@ -162,6 +164,16 @@ button:hover{ filter:brightness(1.08) } .hidden{ display:none !important }
   background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.5), rgba(255,255,255,.15) 40%, rgba(0,0,0,.5));
   offset-rotate: 0deg; animation: fly 650ms cubic-bezier(.23,.85,.25,1) forwards; }
 @keyframes fly { to { offset-distance: 100%; opacity:.2; } }
+
+/* Floating total pill centered over card piles */
+.pile-pill{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-60%);
+  padding:6px 12px; border-radius:999px; min-width:56px; text-align:center;
+  font-weight:900; letter-spacing:.02em; user-select:none; pointer-events:none;
+  z-index:999; color:#0b0b0b; text-shadow:0 1px 0 rgba(255,255,255,.35);
+  background:linear-gradient(135deg,#f1c40f 60%, #d4a017 100%);
+  box-shadow:0 3px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 6px rgba(0,0,0,.18);
+}
 
 /* Basic responsiveness tweaks */
 @media (max-width: 720px) {

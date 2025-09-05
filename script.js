@@ -214,18 +214,16 @@ function renderAllHands(){
   const dLabel = (state.inRound && !allPlayersDone())
     ? displayTotals([state.dealer[0]])
     : dealerLabel(state.dealer);
-  document.querySelector("#dealerTotal").textContent = dLabel;
-  document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML='<div class="total-tag">—</div>'; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
-    const wrap=document.createElement('div'); wrap.style.display='inline-block'; wrap.style.position='relative'; wrap.style.marginRight='12px'; wrap.style.height='calc(104px + 1mm)'; wrap.style.width='74px';
+  const dPill=document.createElement('div'); dPill.className='pile-pill'; dPill.textContent=dLabel; drow.appendChild(dPill);
+  document.querySelectorAll(".seat").forEach((seat,i)=>{ const area=seat.querySelector('.hand-area'); area.innerHTML=''; const hands=state.hands[i]||[]; hands.forEach((h,hi)=>{
+    const wrap=document.createElement('div'); wrap.style.display='inline-block'; wrap.style.position='relative'; wrap.style.marginRight='12px'; wrap.style.height='calc(104px + 1mm)'; wrap.style.width=(FAN_SPREAD + 74)+'px';
     h.cards.forEach((c,ci)=>{ const host=document.createElement('div'); host.style.position='absolute'; host.style.left='50%'; host.style.bottom='0'; host.style.transformOrigin='bottom left'; host.style.transform=`rotate(${(ci - (h.cards.length-1)/2)*12}deg)`; host.style.zIndex=String(10+ci); wrap.appendChild(host); const el=createCardEl(c,false); host.appendChild(el); setTimeout(()=>el.querySelector('.card').classList.remove('flipped'),0); });
-    area.appendChild(wrap); const totalEl=area.querySelector('.total-tag');
+    const pill=document.createElement('div'); pill.className='pile-pill';
     const bestNow = bestHandTotal(h.cards);
-    if(RULES.blackjackLabelMode==='any21' && bestNow.total===21){
-      totalEl.textContent = 'BLACKJACK!';
-    } else {
-      totalEl.textContent = playerLabel(h.cards);
-    }
-    if(i===state.activeSeat && hi===state.activeHand && state.inRound && !h.done){ totalEl.style.outline='3px solid rgba(255,255,255,.45)'; } else totalEl.style.outline='none'; }); });
+    pill.textContent = (RULES.blackjackLabelMode==='any21' && bestNow.total===21) ? 'BLACKJACK!' : playerLabel(h.cards);
+    wrap.appendChild(pill);
+    area.appendChild(wrap);
+  }); });
 }
 
 function showBettingControls(show){ document.querySelectorAll('[data-group="bet"]').forEach(b=>b.classList.toggle('hidden', !show)); }
