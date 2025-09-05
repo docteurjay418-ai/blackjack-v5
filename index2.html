@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blackjack — Pastille et éventail centrés (index2)</title>
+<style>
+  :root{
+    --felt:#0e6b73; --felt-dark:#0b6168; --text:#eaf4f6; --shadow:rgba(0,0,0,.35);
+    --card-w:86px; --card-h:124px; --card-radius:12px;
+    --anim-fast:140ms; --anim-med:220ms; --ease:cubic-bezier(.22,.61,.36,1);
+    --fan-spread:280px;
+  }
+  body{margin:0;background:var(--felt-dark);font-family:system-ui,Segoe UI,Roboto,Arial;color:var(--text)}
+  .table{position:relative;margin:24px auto;width:min(1100px,96vw);height:640px;border-radius:24px;
+         background:
+           radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(0,0,0,.45) 100%),
+           var(--felt);
+         background-blend-mode:multiply,normal;
+         box-shadow:inset 0 0 0 2px rgba(255,255,255,.06); overflow:hidden}
+  .seat{position:absolute;left:0;right:0;display:flex;justify-content:center}
+  .seat--dealer{top:70px}
+  .seat--player{bottom:110px}
+
+  /* HAND: conteneur centré; les cartes sont à l'intérieur */
+  .hand{position:relative;width:620px;height:220px;pointer-events:none}
+  .cards{position:absolute; inset:40px 0 0; left:50%; transform:translateX(-50%); height:160px; perspective:800px}
+
+  /* CARTES (placeholder -> remplace par images si besoin) */
+  .card{
+    position:absolute; width:var(--card-w); height:var(--card-h);
+    border-radius:var(--card-radius); background:#fff;
+    box-shadow:0 10px 16px var(--shadow), inset 0 0 0 1px #e6e6e6;
+    display:flex; align-items:center; justify-content:center; font-weight:900; color:#111;
+    transform-origin:bottom center; will-change:transform; backface-visibility:hidden;
+  }
+  .card.enter{ animation:cardIn var(--anim-med) var(--ease) both }
+  @keyframes cardIn{ from{ transform:translateY(-12px) scale(.96) rotate(-2deg); opacity:0 } to{ transform:translateY(0) scale(1) rotate(0deg); opacity:1 } }
+  .card.is-hidden{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.05), transparent 24%),
+      repeating-linear-gradient(45deg, #165064 0 10px, #0e3a49 10px 20px);
+    border:2px solid #e6d38b;
+    box-shadow: inset 0 0 0 3px #11323f, 0 10px 16px var(--shadow);
+  }
+
+  /* PASTILLE (totaux) centrée sur la pile */
+  .pill{
+    position:absolute; z-index:999; top:50%; left:50%; transform:translate(-50%,-50%);
+    padding:6px 14px; border-radius:999px; min-width:56px; text-align:center;
+    font-weight:900; letter-spacing:.02em; user-select:none; pointer-events:none;
+    color:#0b0b0b; text-shadow:0 1px 0 rgba(255,255,255,.35);
+    background:linear-gradient(135deg,#f1c40f 60%, #d4a017 100%);
+    box-shadow:0 3px 8px var(--shadow), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 6px rgba(0,0,0,.18);
+  }
+  .pill.is-win{ background:linear-gradient(135deg,#39d98a 60%, #1ea56a 100%); color:#042 }
+  .pill.is-bust,.pill.is-lose{ background:linear-gradient(135deg,#ff6b6b 60%, #d64545 100%); color:#2a0000 }
+
+  /* Contrôles */
+  .controls{position:absolute; left:50%; bottom:16px; transform:translateX(-50%); display:flex; gap:8px}
+  .btn{border:1px solid rgba(255,255,255,.12); background:linear-gradient(#2a2a2a,#171717);
+       color:#fff; border-radius:12px; padding:.6rem 1rem; cursor:pointer}
+
+  @media (max-width:480px){ :root{ --card-w:70px; --card-h:100px; --fan-spread:200px } }
+</style>
+</head>
+<body>
+  <div class="table">
+    <!-- CROUPIER -->
+    <div class="seat seat--dealer">
+      <div class="hand" id="dealerHand">
+        <div class="cards" id="dealerCards"></div>
+        <div class="pill"  id="dealerPill"></div>
+      </div>
+    </div>
+    <!-- JOUEUR -->
+    <div class="seat seat--player">
+      <div class="hand" id="playerHand">
+        <div class="cards" id="playerCards"></div>
+        <div class="pill"  id="playerPill"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="deal">Deal</button>
+      <button class="btn" id="hit">Hit (joueur)</button>
+      <button class="btn" id="stand">Stand</button>
+      <button class="btn" id="forceWin">Force WIN</button>
+      <button class="btn" id="forceLose">Force Lose</button>
+      <button class="btn" id="forceBust">Force Bust</button>
+    </div>
+  </div>
+
+<script>
+// ============= Totaux Blackjack (As dynamiques) =============
+function baseValue(r){ if(r==='A')return 1; if('JQK'.includes(r))return 10; return Number(r); }
+function allTotals(ranks){ let nonA=0, a=0; for(const r of ranks){ if(r==='A') a++; else nonA+=baseValue(r); } const s=new Set([nonA+a]); for(let k=1;k<=a;k++) s.add(nonA+a+10*k); return [...s].sort((x,y)=>x-y); }
+function bestTotal(ranks){ const t=allTotals(ranks); for(let i=t.length-1;i>=0;i--) if(t[i]<=21) return {t:t[i], soft:t[i]!==t[0]}; return {t:t[0], soft:false}; }
+function labelPlayer(ranks){ const t=allTotals(ranks), ok=t.filter(v=>v<=21); if(ranks.length<=2){ if(ok.length>1) return `${ok[0]} / ${ok[ok.length-1]}`; return String(ok[0] ?? t[0]); } return String(ok.length?Math.max(...ok):t[0]); }
+
+// ============= Éventail centré =============
+function getFanSpread(){ const v=getComputedStyle(document.documentElement).getPropertyValue('--fan-spread').trim(); const n=parseFloat(v); return Number.isFinite(n)?n:280; }
+function layoutFan(cardsEl,{maxAngle=22}={}){ const spreadPx=getFanSpread(); const cards=[...cardsEl.querySelectorAll('.card')]; const n=cards.length; if(!n) return; cards.forEach((c,i)=>{ const rel=(n===1)?0:(i/(n-1)-.5); const x=rel*spreadPx, y=0, ang=rel*maxAngle; c.style.transform=`translate(${x}px,${y}px) rotate(${ang}deg)`; c.style.zIndex=String(100+i); }); }
+
+// ============= Pastilles & rendu =============
+function updatePill(pillEl, outcome, total){ pillEl.classList.remove('is-win','is-bust','is-lose'); if(outcome==='win'){ pillEl.textContent='WIN!'; pillEl.classList.add('is-win'); } else if(outcome==='bust'){ pillEl.textContent='Bust'; pillEl.classList.add('is-bust'); } else if(outcome==='lose'){ pillEl.textContent='No win'; pillEl.classList.add('is-lose'); } else { pillEl.textContent=total; } }
+function makeCard(rank){ const d=document.createElement('div'); d.className='card enter'; d.textContent=rank; d.addEventListener('animationend',()=>d.classList.remove('enter'),{once:true}); return d; }
+function renderHand(cardsEl, pillEl, ranks, outcome, isDealer=false){ cardsEl.innerHTML=''; ranks.forEach(r=>{ const d=makeCard(r); if(r==='?'&&isDealer) d.classList.add('is-hidden'); cardsEl.appendChild(d); }); layoutFan(cardsEl); if(isDealer){ const visible = ranks.includes('?') ? [ranks[0]] : ranks; updatePill(pillEl, outcome, String(bestTotal(visible).t)); } else { updatePill(pillEl, outcome, labelPlayer(ranks)); } }
+
+// ============= Démo logique =============
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const $pCards=document.getElementById('playerCards'); const $pPill=document.getElementById('playerPill');
+const $dCards=document.getElementById('dealerCards'); const $dPill=document.getElementById('dealerPill');
+const state={ player:[], dealer:[], playerOutcome:null, dealerOutcome:null, ended:false, _hole:null };
+function draw(){ return RANKS[(Math.random()*RANKS.length)|0]; }
+function dealerShouldHit(r){ const {t,soft}=bestTotal(r); return (t<17)||(t===17&&soft); }
+function renderAll(){ const pO=state.ended?state.playerOutcome:null; const dO=state.ended?state.dealerOutcome:null; renderHand($pCards,$pPill,state.player,pO,false); renderHand($dCards,$dPill,state.dealer,dO,true); }
+function deal(){ state.playerOutcome=state.dealerOutcome=null; state.ended=false; state._hole=draw(); state.player=[draw(),draw()]; state.dealer=[draw(),'?']; renderAll(); }
+function hitPlayer(){ if(state.ended) return; const before=bestTotal(state.player).t; if(before>=21) return; state.player.push(draw()); const t=bestTotal(state.player).t; if(t>21){ state.playerOutcome='bust'; state.ended=true; } renderAll(); }
+function stand(){ if(state.ended) return; const qi=state.dealer.indexOf('?'); if(qi!==-1){ state.dealer[qi]=state._hole||draw(); state._hole=null; } while(dealerShouldHit(state.dealer)) state.dealer.push(draw()); const tp=bestTotal(state.player).t, td=bestTotal(state.dealer).t; state.playerOutcome=null; if(tp>21) state.playerOutcome='bust'; else if(td>21||tp>td) state.playerOutcome='win'; else if(tp<td) state.playerOutcome='lose'; state.ended=true; renderAll(); }
+function forceOutcome(type){ state.playerOutcome=type; state.dealerOutcome=null; state.ended=true; renderAll(); }
+
+document.getElementById('deal')?.addEventListener('click',deal);
+document.getElementById('hit') ?.addEventListener('click',hitPlayer);
+document.getElementById('stand')?.addEventListener('click',stand);
+document.getElementById('forceWin') ?.addEventListener('click',()=>forceOutcome('win'));
+document.getElementById('forceLose')?.addEventListener('click',()=>forceOutcome('lose'));
+document.getElementById('forceBust')?.addEventListener('click',()=>forceOutcome('bust'));
+
+deal();
+</script>
+</body>
+</html>
+
